@@ -150,6 +150,30 @@ export function useAuth() {
     }
   }
 
+  // Função para atualizar senha
+  const updatePassword = async (newPassword) => {
+    try {
+      loading.value = true
+      error.value = null
+      
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+      
+      if (updateError) {
+        throw updateError
+      }
+      
+      return { error: null }
+    } catch (err) {
+      const translatedError = translateAuthError(err.message)
+      error.value = translatedError
+      return { error: translatedError }
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Função para atualizar perfil
   const updateProfile = async (updates) => {
     try {
@@ -185,6 +209,7 @@ export function useAuth() {
     getCurrentUser,
     initAuth,
     resetPassword,
+    updatePassword,
     updateProfile
   }
 }

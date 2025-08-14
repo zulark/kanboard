@@ -13,19 +13,21 @@
                         <!-- Hero Image -->
                         <div class="mb-8">
                             <img 
-                                src="/src/assets/heroimage.png"
+                                :src="showPasswordRecovery ? '/src/assets/heroimage2.png' : '/src/assets/heroimage.png'"
                                 class="w-full h-full object-contain mx-auto"
                             />
                         </div>
                         
                         <!-- Hero Text -->
                         <h1 class="text-black text-4xl font-bold mb-4">
-                            {{ isLogin ? 'Bem-vindo de volta!' : 'Junte-se a nós!' }}
+                            {{ showPasswordRecovery ? 'Recupere sua conta' : (isLogin ? 'Bem-vindo de volta!' : 'Junte-se a nós!') }}
                         </h1>
                         <p class="text-xl text-slate-700 mb-8 leading-relaxed">
-                            {{ isLogin 
-                                ? 'Acesse sua conta e continue gerenciando seus projetos Scrum de forma eficiente.' 
-                                : 'Crie sua conta e comece a organizar suas tarefas como um verdadeiro desenvolvedor ágil.' 
+                            {{ showPasswordRecovery 
+                                ? 'Digite seu email e enviaremos um link para redefinir sua senha.' 
+                                : (isLogin 
+                                    ? 'Acesse sua conta e continue gerenciando seus projetos Scrum de forma eficiente.' 
+                                    : 'Crie sua conta e comece a organizar suas tarefas como um verdadeiro desenvolvedor ágil.') 
                             }}
                         </p>
                         
@@ -74,23 +76,23 @@
                     <!-- Form Header -->
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold text-gray-900 mb-2">
-                            {{ isLogin ? 'Entre na sua conta' : 'Crie sua conta' }}
+                            {{ showPasswordRecovery ? 'Recuperar Senha' : (isLogin ? 'Entre na sua conta' : 'Crie sua conta') }}
                         </h2>
                         <p class="text-sm text-gray-600">
-                            {{ isLogin 
-                                ? 'Acesse suas tarefas e projetos' 
-                                : 'Comece a organizar seus projetos hoje' 
+                            {{ showPasswordRecovery 
+                                ? 'Digite seu email para receber o link de recuperação' 
+                                : (isLogin 
+                                    ? 'Acesse suas tarefas e projetos' 
+                                    : 'Comece a organizar seus projetos hoje') 
                             }}
                         </p>
                     </div>
 
                     <!-- Form -->
-
-                    <!-- Form -->
                     <form class="space-y-6" @submit.prevent="handleSubmit">
                         <div class="space-y-4">
                             <!-- Nome completo (apenas no registro) -->
-                            <div v-if="!isLogin">
+                            <div v-if="!isLogin && !showPasswordRecovery">
                                 <label for="fullName" class="block text-sm font-medium text-gray-700">
                                     Nome Completo
                                 </label>
@@ -98,7 +100,7 @@
                                     id="fullName" 
                                     v-model="form.fullName" 
                                     type="text" 
-                                    :required="!isLogin"
+                                    :required="!isLogin && !showPasswordRecovery"
                                     class="mt-1 appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                                     placeholder="Seu nome completo" 
                                 />
@@ -113,14 +115,13 @@
                                     id="email" 
                                     v-model="form.email" 
                                     type="email"
-                                    required
                                     class="mt-1 appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                                    placeholder="seu@email.com" 
+                                    placeholder="Seu Email" 
                                 />
                             </div>
 
-                            <!-- Senha -->
-                            <div>
+                            <!-- Senha (não mostrar no modo de recuperação) -->
+                            <div v-if="!showPasswordRecovery">
                                 <label for="password" class="block text-sm font-medium text-gray-700">
                                     Senha
                                 </label>
@@ -128,7 +129,7 @@
                                     id="password" 
                                     v-model="form.password" 
                                     type="password"
-                                    required
+                                    :required="!showPasswordRecovery"
                                     class="mt-1 appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                                     :placeholder="isLogin ? 'Sua senha' : 'Mínimo 6 caracteres'"
                                     :minlength="!isLogin ? 6 : undefined" 
@@ -136,7 +137,7 @@
                             </div>
 
                             <!-- Confirmar senha (apenas no registro) -->
-                            <div v-if="!isLogin">
+                            <div v-if="!isLogin && !showPasswordRecovery">
                                 <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
                                     Confirmar Senha
                                 </label>
@@ -152,30 +153,40 @@
                         </div>
 
                         <!-- Mensagens de erro -->
-                        <div v-if="errorMessage" class="rounded-lg bg-red-50 p-4">
+                        <div v-if="errorMessage" class="rounded-lg bg-red-50 p-4 mb-6 transition-all duration-300">
                             <div class="flex">
                                 <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                                 </svg>
-                                <div class="ml-3">
+                                <div class="ml-3 flex-1">
                                     <h3 class="text-sm font-medium text-red-800">
                                         {{ errorMessage }}
                                     </h3>
                                 </div>
+                                <button @click="clearMessage('error')" class="ml-3 text-red-400 hover:text-red-600">
+                                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
                         <!-- Mensagem de sucesso -->
-                        <div v-if="successMessage" class="rounded-lg bg-green-50 p-4">
+                        <div v-if="successMessage" class="rounded-lg bg-green-50 p-4 mb-6 transition-all duration-300">
                             <div class="flex">
                                 <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
-                                <div class="ml-3">
+                                <div class="ml-3 flex-1">
                                     <h3 class="text-sm font-medium text-green-800">
                                         {{ successMessage }}
                                     </h3>
                                 </div>
+                                <button @click="clearMessage('success')" class="ml-3 text-green-400 hover:text-green-600">
+                                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
@@ -189,13 +200,21 @@
                                 <span v-if="loading" class="absolute left-0 inset-y-0 flex items-center pl-3">
                                     <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                                 </span>
-                                {{ loading ? (isLogin ? loadingMessages.signIn : loadingMessages.signUp) : (isLogin ? 'Entrar' : 'Cadastrar') }}
+                                {{ loading 
+                                    ? (showPasswordRecovery 
+                                        ? loadingMessages.passwordReset 
+                                        : (isLogin ? loadingMessages.signIn : loadingMessages.signUp))
+                                    : (showPasswordRecovery 
+                                        ? 'Enviar Link de Recuperação' 
+                                        : (isLogin ? 'Entrar' : 'Cadastrar'))
+                                }}
                             </button>
                         </div>
 
                         <!-- Links adicionais -->
                         <div class="text-center space-y-4">
-                            <p class="text-sm text-gray-600">
+                            <!-- Link para alternar entre login/registro (apenas se não estiver em modo de recuperação) -->
+                            <p v-if="!showPasswordRecovery" class="text-sm text-gray-600">
                                 {{ isLogin ? 'Não tem uma conta?' : 'Já tem uma conta?' }}
                                 <button 
                                     type="button"
@@ -206,13 +225,25 @@
                                 </button>
                             </p>
                             
-                            <div v-if="isLogin">
+                            <!-- Link para recuperação de senha (apenas no modo login) -->
+                            <div v-if="isLogin && !showPasswordRecovery">
                                 <button 
                                     type="button" 
                                     @click="handleForgotPassword"
                                     class="text-sm text-primary-600 hover:text-primary-500 transition-colors duration-200"
                                 >
                                     Esqueceu sua senha?
+                                </button>
+                            </div>
+
+                            <!-- Link para voltar ao login (apenas no modo de recuperação) -->
+                            <div v-if="showPasswordRecovery">
+                                <button 
+                                    type="button" 
+                                    @click="hideRecoveryForm"
+                                    class="text-sm text-primary-600 hover:text-primary-500 transition-colors duration-200"
+                                >
+                                    ← Voltar ao Login
                                 </button>
                             </div>
                         </div>
@@ -226,15 +257,17 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAuth } from '../composables/useAuth.js'
+import { useMessages } from '../composables/useMessages.js'
 import { successMessages, loadingMessages } from '../utils/errorMessages.js'
+// import PasswordRecovery from './PasswordRecovery.vue'
 
 const emit = defineEmits(['authenticated'])
 
 const { signIn, signUp, resetPassword, loading, error } = useAuth()
+const { errorMessage, successMessage, setError, setSuccess, clearMessages, clearMessage } = useMessages()
 
 const isLogin = ref(true)
-const errorMessage = ref('')
-const successMessage = ref('')
+const showPasswordRecovery = ref(false)
 
 const form = ref({
     email: '',
@@ -245,8 +278,8 @@ const form = ref({
 
 const toggleMode = () => {
     isLogin.value = !isLogin.value
-    errorMessage.value = ''
-    successMessage.value = ''
+    showPasswordRecovery.value = false
+    clearMessages()
     form.value = {
         email: '',
         password: '',
@@ -255,39 +288,74 @@ const toggleMode = () => {
     }
 }
 
+const showRecoveryForm = () => {
+    showPasswordRecovery.value = true
+    clearMessages()
+}
+
+const hideRecoveryForm = () => {
+    showPasswordRecovery.value = false
+    clearMessages()
+}
+
 const validateForm = () => {
-    if (!isLogin.value) {
+    if (showPasswordRecovery.value) {
+        // Validação para recuperação de senha
+        if (!form.value.email) {
+            setError('Email é obrigatório')
+            return false
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(form.value.email)) {
+            setError('Digite um email válido')
+            return false
+        }
+    } else if (!isLogin.value) {
+        // Validação para registro
         if (form.value.password !== form.value.confirmPassword) {
-            errorMessage.value = 'As senhas não coincidem'
+            setError('As senhas não coincidem')
             return false
         }
         if (form.value.password.length < 6) {
-            errorMessage.value = 'A senha deve ter pelo menos 6 caracteres'
+            setError('A senha deve ter pelo menos 6 caracteres')
             return false
         }
         if (!form.value.fullName.trim()) {
-            errorMessage.value = 'Nome completo é obrigatório'
+            setError('Nome completo é obrigatório')
             return false
         }
     }
+    // Para login, não há validação adicional além do required dos inputs
     return true
 }
 
 const handleSubmit = async () => {
-    errorMessage.value = ''
-    successMessage.value = ''
+    clearMessages()
 
     if (!validateForm()) return
 
     try {
-        if (isLogin.value) {
+        if (showPasswordRecovery.value) {
+            // Recuperação de senha
+            const { error } = await resetPassword(form.value.email)
+            
+            if (error) {
+                setError(error)
+            } else {
+                setSuccess(successMessages.passwordReset)
+                // Opcional: voltar ao login após sucesso
+                setTimeout(() => {
+                    hideRecoveryForm()
+                }, 3000)
+            }
+        } else if (isLogin.value) {
             // Login
             const { error } = await signIn(form.value.email, form.value.password)
 
             if (error) {
-                errorMessage.value = error
+                setError(error)
             } else {
-                successMessage.value = successMessages.signIn
+                setSuccess(successMessages.signIn)
                 emit('authenticated')
             }
         } else {
@@ -299,32 +367,26 @@ const handleSubmit = async () => {
             )
 
             if (error) {
-                errorMessage.value = error
+                setError(error)
             } else if (needsConfirmation) {
-                successMessage.value = successMessages.signUpConfirmation
+                setSuccess(successMessages.signUpConfirmation)
             } else {
-                successMessage.value = successMessages.signUp
+                setSuccess(successMessages.signUp)
                 emit('authenticated')
             }
         }
     } catch (err) {
-        errorMessage.value = 'Erro inesperado. Tente novamente.'
+        setError('Erro inesperado. Tente novamente.')
         console.error(err)
     }
 }
 
-const handleForgotPassword = async () => {
-    if (!form.value.email) {
-        errorMessage.value = 'Digite seu email primeiro'
-        return
-    }
+const handleForgotPassword = () => {
+    showRecoveryForm()
+}
 
-    const { error } = await resetPassword(form.value.email)
-
-    if (error) {
-        errorMessage.value = error
-    } else {
-        successMessage.value = successMessages.passwordReset
-    }
+const handleRecoverySuccess = () => {
+    hideRecoveryForm()
+    setSuccess('Email de recuperação enviado com sucesso!')
 }
 </script>
