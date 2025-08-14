@@ -66,9 +66,8 @@
                     <!-- Mobile Hero Image -->
                     <div class="lg:hidden text-center mb-8">
                         <img 
-                            :src="isLogin ? '/src/assets/undraw_authentication_tbfc.png' : '/src/assets/undraw_coding_joxb.png'" 
-                            :alt="isLogin ? 'Autenticação' : 'Desenvolvimento'" 
-                            class="w-40 h-32 object-contain mx-auto"
+                            src="/src/assets/heroimage2.png" 
+                            class="w-full h-64 object-contain mx-auto"
                         />
                     </div>
                     
