@@ -5,7 +5,6 @@ import { useAuth } from './useAuth.js'
 export function useTasks() {
   const { user } = useAuth()
   
-  const tasks = ref([])
   const loading = ref(false)
   const error = ref(null)
   const tasks = ref([

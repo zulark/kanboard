@@ -71,11 +71,7 @@
 
                 <!-- Kanban Board -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div v-for="status in statuses" :key="status" class="rounded-lg p-4 border-2 min-h-[400px]" :class="{
-                        'bg-blue-50 border-blue-200': status === 'To Do',
-                        'bg-yellow-50 border-yellow-200': status === 'In Progress',
-                        'bg-green-50 border-green-200': status === 'Done'
-                    }">
+                    <div v-for="status in statuses" :key="status" class="p-4 min-h-[400px]">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="font-semibold text-gray-900 flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full" :class="{
@@ -128,7 +124,7 @@ import AuthForm from './components/AuthForm.vue'
 
 // Autenticação
 const { user, isAuthenticated, signOut, initAuth } = useAuth()
-
+console.log(user)
 // Computed para extrair o nome do usuário
 const userName = computed(() => {
     if (!user.value) return ''

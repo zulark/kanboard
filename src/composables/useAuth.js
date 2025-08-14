@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { supabase } from '../lib/supabase.js'
+import { translateAuthError } from '../utils/errorMessages.js'
 
 const user = ref(null)
 const loading = ref(false)
@@ -27,8 +28,9 @@ export function useAuth() {
       user.value = data.user
       return { user: data.user, error: null }
     } catch (err) {
-      error.value = err.message
-      return { user: null, error: err.message }
+      const translatedError = translateAuthError(err.message)
+      error.value = translatedError
+      return { user: null, error: translatedError }
     } finally {
       loading.value = false
     }
@@ -60,8 +62,9 @@ export function useAuth() {
         needsConfirmation: !data.session 
       }
     } catch (err) {
-      error.value = err.message
-      return { user: null, error: err.message, needsConfirmation: false }
+      const translatedError = translateAuthError(err.message)
+      error.value = translatedError
+      return { user: null, error: translatedError, needsConfirmation: false }
     } finally {
       loading.value = false
     }
@@ -82,8 +85,9 @@ export function useAuth() {
       user.value = null
       return { error: null }
     } catch (err) {
-      error.value = err.message
-      return { error: err.message }
+      const translatedError = translateAuthError(err.message)
+      error.value = translatedError
+      return { error: translatedError }
     } finally {
       loading.value = false
     }
@@ -138,8 +142,9 @@ export function useAuth() {
       
       return { error: null }
     } catch (err) {
-      error.value = err.message
-      return { error: err.message }
+      const translatedError = translateAuthError(err.message)
+      error.value = translatedError
+      return { error: translatedError }
     } finally {
       loading.value = false
     }
@@ -161,8 +166,9 @@ export function useAuth() {
       
       return { error: null }
     } catch (err) {
-      error.value = err.message
-      return { error: err.message }
+      const translatedError = translateAuthError(err.message)
+      error.value = translatedError
+      return { error: translatedError }
     } finally {
       loading.value = false
     }

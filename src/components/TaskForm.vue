@@ -115,10 +115,11 @@
               v-model.number="form.estimatedHours"
               type="number"
               min="0.5"
+              max="999.5"
               step="0.5"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              placeholder="Ex: 8"
+              placeholder="Ex: 8, 1.5, 0.5"
             />
           </div>
         </div>
@@ -221,6 +222,19 @@ watch(() => props.task, (newTask) => {
 }, { immediate: true })
 
 const handleSubmit = () => {
-  emit('save', { ...form.value })
+  // Validar estimatedHours
+  const hours = Number(form.value.estimatedHours)
+  if (isNaN(hours) || hours < 0.5 || hours > 999.5) {
+    alert('Estimativa deve ser entre 0.5 e 999.5 horas')
+    return
+  }
+  
+  // Garantir que o valor seja um número válido
+  const taskData = {
+    ...form.value,
+    estimatedHours: hours
+  }
+  
+  emit('save', taskData)
 }
 </script>

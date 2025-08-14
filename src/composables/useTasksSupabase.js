@@ -1,6 +1,7 @@
 import { ref, computed, watch } from 'vue'
 import { supabase, TABLES, TASK_TYPES, TASK_PRIORITIES, TASK_STATUSES } from '../lib/supabase.js'
 import { useAuth } from './useAuth.js'
+import { translateAuthError } from '../utils/errorMessages.js'
 
 export function useTasks() {
   const { user } = useAuth()
@@ -71,7 +72,7 @@ export function useTasks() {
         type: taskData.type,
         priority: taskData.priority,
         status: taskData.status,
-        estimated_hours: taskData.estimatedHours || 1,
+        estimated_hours: Number(taskData.estimatedHours) || 1.0,
         assignee: taskData.assignee || '',
         order_index: maxOrder + 1
       }
@@ -120,7 +121,7 @@ export function useTasks() {
       const dbUpdates = { ...updates }
       
       if (updates.estimatedHours !== undefined) {
-        dbUpdates.estimated_hours = updates.estimatedHours
+        dbUpdates.estimated_hours = Number(updates.estimatedHours)
         delete dbUpdates.estimatedHours
       }
 

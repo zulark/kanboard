@@ -1,0 +1,4 @@
+.env
+.env*
+SUPABASE_SETUP.md
+supabase-setup.sql
