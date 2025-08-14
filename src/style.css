@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+  }
+  
+  .task-card {
+    @apply bg-white rounded-lg shadow-sm p-4 border border-gray-200 hover:shadow-md transition-all duration-200 cursor-grab;
+  }
+  
+  .task-card:active {
+    @apply cursor-grabbing;
+  }
+  
+  .kanban-column-todo {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200;
+  }
+  
+  .kanban-column-progress {
+    @apply bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-yellow-200;
+  }
+  
+  .kanban-column-done {
+    @apply bg-gradient-to-br from-green-50 to-green-100/50 border-green-200;
+  }
+}
+
+/* Drag and Drop Styles */
+.task-card[draggable="true"] {
+  transition: all 0.2s ease;
+}
+
+.task-card.dragging {
+  opacity: 0.5;
+  transform: rotate(3deg) scale(1.05);
+  z-index: 1000;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.drop-zone {
+  transition: all 0.2s ease;
+}
+
+.drop-zone-active {
+  background-color: rgb(239 246 255) !important;
+  border: 2px dashed rgb(59 130 246) !important;
+  transform: scale(1.02);
+}
+
+/* Indicador de inserção para reordenação */
+.drop-indicator {
+  height: 2px;
+  background-color: rgb(59 130 246);
+  margin: 4px 0;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.drop-indicator.active {
+  opacity: 1;
+}
+
+.task-card.drag-over-top {
+  border-top: 2px solid rgb(59 130 246);
+}
+
+.task-card.drag-over-bottom {
+  border-bottom: 2px solid rgb(59 130 246);
+}
+
+/* Hover states para melhor UX */
+.task-card:hover {
+  transform: translateY(-2px);
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
