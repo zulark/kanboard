@@ -1,10 +1,12 @@
 import { ref, computed, watch } from 'vue'
 import { supabase, TABLES, TASK_TYPES, TASK_PRIORITIES, TASK_STATUSES } from '../lib/supabase.js'
 import { useAuth } from './useAuth.js'
+import { useTaskStatuses } from './useTaskStatuses.js'
 import { translateAuthError } from '../utils/errorMessages.js'
 
 export function useTasks() {
   const { user } = useAuth()
+  const { sortedStatuses, statusNames, loadStatuses, onStatusChange } = useTaskStatuses()
   
   const tasks = ref([])
   const loading = ref(false)
@@ -12,7 +14,27 @@ export function useTasks() {
 
   const taskTypes = ref(TASK_TYPES)
   const priorities = ref(TASK_PRIORITIES)
-  const statuses = ref(TASK_STATUSES)
+  // Usar status do sistema personalizável
+  const statuses = computed(() => statusNames.value)
+
+  // Inicializar status e carregar tarefas quando houver usuário autenticado
+  watch(user, async (newUser) => {
+    if (newUser) {
+      await loadStatuses()
+      await loadTasks()
+    } else {
+      tasks.value = []
+    }
+  }, { immediate: true })
+
+  // Listener para mudanças nos status - recarrega tarefas automaticamente
+  onStatusChange(async (event) => {
+    console.log('🔄 Status mudou:', event.action, event.status?.name)
+    // Recarregar tarefas para refletir mudanças nos status
+    if (user.value) {
+      await loadTasks()
+    }
+  })
 
   // Função para carregar tarefas do usuário
   const loadTasks = async () => {
@@ -242,12 +264,13 @@ export function useTasks() {
 
   // Computadas
   const tasksByStatus = computed(() => {
-    return statuses.value.reduce((acc, status) => {
-      acc[status] = tasks.value
-        .filter(task => task.status === status)
+    const result = {}
+    sortedStatuses.value.forEach(status => {
+      result[status.name] = tasks.value
+        .filter(task => task.status === status.name)
         .sort((a, b) => (a.order || 0) - (b.order || 0))
-      return acc
-    }, {})
+    })
+    return result
   })
 
   const totalEstimatedHours = computed(() => {
@@ -286,6 +309,8 @@ export function useTasks() {
     addTask,
     updateTask,
     deleteTask,
-    reorderTasks
+    reorderTasks,
+    // Exportar também os status com cores para a UI
+    sortedStatuses
   }
 }

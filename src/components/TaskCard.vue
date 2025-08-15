@@ -1,7 +1,10 @@
 <template>
   <div 
-    class="task-card group border-l-4"
-    :class="getStatusCardClass(task.status)"
+    class="task-card group border-l-4 bg-white shadow-sm hover:shadow-md transition-all duration-200"
+    :style="{ 
+      borderLeftColor: statusColor,
+      backgroundColor: statusBgColor + '40'
+    }"
     draggable="true"
     @dragstart="handleDragStart"
     @dragend="handleDragEnd"
@@ -70,32 +73,22 @@
           {{ formatDate(task.createdAt) }}
         </span>
         
-        <div class="flex gap-1">
+        <!-- <div class="flex gap-1 flex-wrap">
           <button
-            v-if="task.status !== 'To Do'"
-            @click="$emit('updateStatus', task.id, 'To Do')"
-            class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
-            title="Mover para To Do"
+            v-for="status in sortedStatuses.filter(s => s.name !== task.status).slice(0, 3)"
+            :key="status.id"
+            @click="$emit('updateStatus', task.id, status.name)"
+            class="px-2 py-1 text-xs rounded hover:opacity-80 transition-colors whitespace-nowrap"
+            :style="{ 
+              backgroundColor: status.bgColor,
+              color: status.color,
+              borderColor: status.borderColor
+            }"
+            :title="`Mover para ${status.name}`"
           >
-            To Do
+            {{ status.name.length > 8 ? status.name.substring(0, 8) + '...' : status.name }}
           </button>
-          <button
-            v-if="task.status !== 'In Progress'"
-            @click="$emit('updateStatus', task.id, 'In Progress')"
-            class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition-colors"
-            title="Mover para In Progress"
-          >
-            Progress
-          </button>
-          <button
-            v-if="task.status !== 'Done'"
-            @click="$emit('updateStatus', task.id, 'Done')"
-            class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200 transition-colors"
-            title="Mover para Done"
-          >
-            Done
-          </button>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -108,11 +101,26 @@ import {
   ClockIcon, 
   UserIcon 
 } from '@heroicons/vue/24/outline'
+import { useTaskStatuses } from '../composables/useTaskStatuses.js'
+
+const { sortedStatuses } = useTaskStatuses()
 
 const props = defineProps({
   task: {
     type: Object,
     required: true
+  },
+  statusColor: {
+    type: String,
+    default: '#6b7280'
+  },
+  statusBgColor: {
+    type: String,
+    default: '#f9fafb'
+  },
+  statusBorderColor: {
+    type: String,
+    default: '#d1d5db'
   }
 })
 
@@ -136,15 +144,6 @@ const getPriorityClass = (priority) => {
     'Crítica': 'bg-red-100 text-red-800'
   }
   return classes[priority] || 'bg-gray-100 text-gray-800'
-}
-
-const getStatusCardClass = (status) => {
-  const classes = {
-    'To Do': 'border-l-blue-400 bg-blue-50',
-    'In Progress': 'border-l-yellow-400 bg-yellow-50',
-    'Done': 'border-l-green-400 bg-green-50'
-  }
-  return classes[status] || 'border-l-gray-400 bg-gray-50/30'
 }
 
 const formatDate = (date) => {

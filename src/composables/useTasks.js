@@ -1,9 +1,11 @@
 import { ref, computed, watch } from 'vue'
 import { supabase, TABLES } from '../lib/supabase.js'
 import { useAuth } from './useAuth.js'
+import { useTaskStatuses } from './useTaskStatuses.js'
 
 export function useTasks() {
   const { user } = useAuth()
+  const { sortedStatuses, statusNames, loadStatuses, onStatusChange } = useTaskStatuses()
   
   const loading = ref(false)
   const error = ref(null)
@@ -11,7 +13,23 @@ export function useTasks() {
 
   const taskTypes = ref(['Story', 'Task', 'Bug', 'Epic'])
   const priorities = ref(['Baixa', 'Média', 'Alta', 'Crítica'])
-  const statuses = ref(['To Do', 'In Progress', 'Done'])
+  
+  // Usar status do sistema de status personalizáveis
+  const statuses = computed(() => statusNames.value)
+
+  // Inicializar status quando houver usuário autenticado
+  watch(user, async (newUser) => {
+    if (newUser) {
+      await loadStatuses()
+    }
+  }, { immediate: true })
+
+  // Listener para mudanças nos status - força re-sync das tarefas
+  onStatusChange(async (event) => {
+    console.log('🔄 Status mudou (local):', event.action, event.status?.name)
+    // Re-sincronizar tasksByStatus com os novos status
+    syncTasksByStatus()
+  })
 
   const addTask = (task) => {
     // Calcular a próxima ordem para o status
@@ -41,23 +59,24 @@ export function useTasks() {
     }
   }
 
-  const tasksByStatus = ref({
-    'To Do': [],
-    'In Progress': [],
-    'Done': []
-  })
+  const tasksByStatus = ref({})
 
   // Função para sincronizar tasksByStatus com tasks
   const syncTasksByStatus = () => {
-    statuses.value.forEach(status => {
-      tasksByStatus.value[status] = tasks.value
-        .filter(task => task.status === status)
+    // Criar objeto dinâmico baseado nos status atuais
+    const newTasksByStatus = {}
+    
+    sortedStatuses.value.forEach(status => {
+      newTasksByStatus[status.name] = tasks.value
+        .filter(task => task.status === status.name)
         .sort((a, b) => a.order - b.order)
     })
+    
+    tasksByStatus.value = newTasksByStatus
   }
 
-  // Watcher para manter sincronizado
-  watch(tasks, syncTasksByStatus, { deep: true, immediate: true })
+  // Watcher para atualizar tasksByStatus quando os status mudarem
+  watch([tasks, sortedStatuses], syncTasksByStatus, { deep: true, immediate: true })
 
   // Função para atualizar tasks quando tasksByStatus mudar (para drag and drop)
   const syncTasksFromStatus = () => {
@@ -95,13 +114,20 @@ export function useTasks() {
   })
 
   const taskStats = computed(() => {
-    return {
-      total: tasks.value.length,
-      todo: tasks.value.filter(t => t.status === 'To Do').length,
-      inProgress: tasks.value.filter(t => t.status === 'In Progress').length,
-      done: tasks.value.filter(t => t.status === 'Done').length,
-      totalHours: totalEstimatedHours.value
-    }
+    const stats = { total: tasks.value.length, totalHours: totalEstimatedHours.value }
+    
+    // Adicionar estatísticas dinâmicas baseadas nos status atuais
+    sortedStatuses.value.forEach(status => {
+      const statusKey = status.name.toLowerCase().replace(/\s+/g, '')
+      stats[statusKey] = tasks.value.filter(t => t.status === status.name).length
+    })
+    
+    // Manter compatibilidade com os nomes antigos
+    stats.todo = tasks.value.filter(t => t.status === 'To Do').length
+    stats.inProgress = tasks.value.filter(t => t.status === 'In Progress').length
+    stats.done = tasks.value.filter(t => t.status === 'Done').length
+    
+    return stats
   })
 
   return {
@@ -111,10 +137,14 @@ export function useTasks() {
     statuses,
     tasksByStatus,
     taskStats,
+    loading,
+    error,
     addTask,
     updateTask,
     deleteTask,
     reorderTasks,
-    syncTasksFromStatus
+    syncTasksFromStatus,
+    // Exportar também os status com cores para a UI
+    sortedStatuses
   }
 }

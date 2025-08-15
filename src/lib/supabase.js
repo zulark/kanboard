@@ -9,7 +9,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // Configurações do banco
 export const TABLES = {
   PROFILES: 'profiles',
-  TASKS: 'tasks'
+  TASKS: 'tasks',
+  STATUS: 'task_statuses'
 }
 
 // Enums para garantir consistência
