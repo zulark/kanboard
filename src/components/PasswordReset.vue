@@ -21,10 +21,13 @@
                         
                         <!-- Hero Text -->
                         <h1 class="text-black text-4xl font-bold mb-4">
-                            Redefina sua senha
+                            {{ hasResetError ? 'Link Expirado' : 'Redefina sua senha' }}
                         </h1>
                         <p class="text-xl text-slate-700 mb-8 leading-relaxed">
-                            Digite sua nova senha para acessar sua conta novamente.
+                            {{ hasResetError 
+                                ? 'O link de recuperação não é mais válido. Solicite um novo link para continuar.' 
+                                : 'Digite sua nova senha para acessar sua conta novamente.' 
+                            }}
                         </p>
                         
                         <!-- Features List -->
@@ -67,14 +70,31 @@
                     <!-- Form Header -->
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold text-gray-900 mb-2">
-                            Nova Senha
+                            {{ hasResetError ? 'Link Inválido' : 'Nova Senha' }}
                         </h2>
                         <p class="text-sm text-gray-600">
-                            Digite sua nova senha abaixo
+                            {{ hasResetError 
+                                ? 'Solicite um novo link de recuperação de senha' 
+                                : 'Digite sua nova senha para continuar' 
+                            }}
                         </p>
                     </div>
 
-                    <!-- Mensagens de erro -->
+                    <!-- Mostrar mensagem de erro do reset automaticamente -->
+                    <div v-if="resetError" class="rounded-lg bg-red-50 p-4 mb-6 transition-all duration-300">
+                        <div class="flex">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            <div class="ml-3 flex-1">
+                                <h3 class="text-sm font-medium text-red-800">
+                                    {{ resetError }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mensagens de erro do formulário -->
                     <div v-if="errorMessage" class="rounded-lg bg-red-50 p-4 mb-6 transition-all duration-300">
                         <div class="flex">
                             <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -112,8 +132,8 @@
                         </div>
                     </div>
 
-                    <!-- Form -->
-                    <form class="space-y-6" @submit.prevent="handleSubmit">
+                    <!-- Form (apenas se não houver erro de reset) -->
+                    <form v-if="!hasResetError" class="space-y-6" @submit.prevent="handleSubmit">
                         <div class="space-y-4">
                             <!-- Nova Senha -->
                             <div>
@@ -161,21 +181,31 @@
                                 {{ loading ? loadingMessages.passwordUpdate : 'Redefinir Senha' }}
                             </button>
                         </div>
-
-                        <!-- Links adicionais -->
-                        <div class="text-center space-y-4">
-                            <p class="text-sm text-gray-600">
-                                Lembrou da senha?
-                                <button 
-                                    type="button"
-                                    @click="handleBackToLogin" 
-                                    class="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200"
-                                >
-                                    Voltar ao Login
-                                </button>
-                            </p>
-                        </div>
                     </form>
+
+                    <!-- Botão para solicitar novo link (se houver erro) -->
+                    <div v-if="hasResetError" class="space-y-4">
+                        <button 
+                            @click="handleRequestNewLink"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+                        >
+                            Solicitar Novo Link
+                        </button>
+                    </div>
+
+                    <!-- Links adicionais -->
+                    <div class="text-center space-y-4 mt-6">
+                        <p class="text-sm text-gray-600">
+                            Lembrou da senha?
+                            <button 
+                                type="button"
+                                @click="handleBackToLogin" 
+                                class="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200"
+                            >
+                                Voltar ao Login
+                            </button>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -185,16 +215,18 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { usePasswordReset } from '../composables/usePasswordReset.js'
+import { useAuth } from '../composables/useAuth.js'
 import { useMessages } from '../composables/useMessages.js'
 import { successMessages, loadingMessages } from '../utils/errorMessages.js'
 
 const emit = defineEmits(['reset-success', 'cancel-reset'])
 
-const { updatePassword, loading, exitResetMode } = usePasswordReset()
+const { updatePassword, loading: resetLoading, error: resetError } = usePasswordReset()
+const { resetPassword, loading: emailLoading } = useAuth()
 const { errorMessage, successMessage, setError, setSuccess, clearMessages, clearMessage } = useMessages()
 
-// Sempre em modo de redefinição quando este componente é usado
-const isResetMode = ref(true)
+const loading = computed(() => resetLoading.value || emailLoading.value)
+const hasResetError = computed(() => !!resetError.value)
 
 const form = ref({
     newPassword: '',
@@ -244,6 +276,11 @@ const handleSubmit = async () => {
         setError('Erro inesperado. Tente novamente.')
         console.error(err)
     }
+}
+
+const handleRequestNewLink = () => {
+    // Volta para o login em modo de recuperação
+    emit('cancel-reset')
 }
 
 const handleBackToLogin = () => {

@@ -24,9 +24,11 @@ export const authErrorMessages = {
   'Token has expired or is invalid': 'Token expirado ou inválido',
   'Email rate limit exceeded': 'Limite de emails excedido. Tente novamente mais tarde',
   'Confirmation token not found': 'Token de confirmação não encontrado',
+  'For security purposes, you can only request this after 8 seconds.': 'Por segurança, aguarde alguns segundos antes de tentar novamente',
   
   // Erros de Senha
   'New password should be different from the old password': 'A nova senha deve ser diferente da senha atual',
+  'New password should be different from the old password.': 'A nova senha deve ser diferente da senha atual',
   'Password is too weak': 'Senha muito fraca. Use uma senha mais forte',
   'Same password': 'A nova senha deve ser diferente da atual',
   
@@ -93,6 +95,24 @@ export function translateAuthError(errorMessage) {
   
   // Busca por palavras-chave se não encontrar tradução exata
   const message = errorMessage.toLowerCase()
+  
+  // Detecta mensagens de limite de tempo com números variáveis
+  if (message.includes('for security purposes') && message.includes('you can only request this after')) {
+    // Extrai o número de segundos da mensagem (ex: "after 8 seconds")
+    const secondsMatch = message.match(/after (\d+) seconds?/)
+    if (secondsMatch) {
+      const seconds = secondsMatch[1]
+      return `Por segurança, aguarde ${seconds} segundos antes de tentar novamente`
+    }
+    return 'Por segurança, aguarde alguns segundos antes de tentar novamente'
+  }
+  
+  // Detecta diferentes variações da mensagem de senha diferente
+  if (message.includes('new password should be different') || 
+      message.includes('same password') || 
+      (message.includes('password') && message.includes('different'))) {
+    return 'A nova senha deve ser diferente da senha atual'
+  }
   
   if (message.includes('invalid') && message.includes('credentials')) {
     return 'Credenciais inválidas'

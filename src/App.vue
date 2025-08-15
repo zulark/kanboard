@@ -22,15 +22,15 @@
                 </div>
                 <div class="card text-center">
                     <div class="text-2xl font-bold text-blue-600">{{ taskStats.todo }}</div>
-                    <div class="text-sm text-gray-600">A Fazer</div>
+                    <div class="text-sm text-gray-600">To do</div>
                 </div>
                 <div class="card text-center">
                     <div class="text-2xl font-bold text-yellow-600">{{ taskStats.inProgress }}</div>
-                    <div class="text-sm text-gray-600">Em Progresso</div>
+                    <div class="text-sm text-gray-600">In Progress</div>
                 </div>
                 <div class="card text-center">
                     <div class="text-2xl font-bold text-green-600">{{ taskStats.done }}</div>
-                    <div class="text-sm text-gray-600">Concluídas</div>
+                    <div class="text-sm text-gray-600">Done</div>
                 </div>
                 <div class="card text-center">
                     <div class="text-2xl font-bold text-purple-600">{{ taskStats.totalHours }}h</div>

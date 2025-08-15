@@ -7,68 +7,7 @@ export function useTasks() {
   
   const loading = ref(false)
   const error = ref(null)
-  const tasks = ref([
-    {
-      id: 1,
-      title: 'Implementar autenticação de usuário',
-      description: 'Criar sistema de login e registro com validação de formulários',
-      type: 'Story',
-      priority: 'Alta',
-      status: 'To Do',
-      estimatedHours: 8,
-      assignee: 'João Silva',
-      createdAt: new Date('2024-01-15'),
-      order: 1
-    },
-    {
-      id: 2,
-      title: 'Corrigir bug no carrinho de compras',
-      description: 'Items duplicados aparecem quando usuário clica rapidamente no botão adicionar',
-      type: 'Bug',
-      priority: 'Crítica',
-      status: 'In Progress',
-      estimatedHours: 4,
-      assignee: 'Maria Santos',
-      createdAt: new Date('2024-01-16'),
-      order: 1
-    },
-    {
-      id: 3,
-      title: 'Otimizar performance da página inicial',
-      description: 'Reduzir tempo de carregamento implementando lazy loading e cache',
-      type: 'Task',
-      priority: 'Média',
-      status: 'In Progress',
-      estimatedHours: 12,
-      assignee: 'Pedro Costa',
-      createdAt: new Date('2024-01-14'),
-      order: 2
-    },
-    {
-      id: 4,
-      title: 'Documentar API REST',
-      description: 'Criar documentação completa dos endpoints com Swagger',
-      type: 'Task',
-      priority: 'Baixa',
-      status: 'To Do',
-      estimatedHours: 6,
-      assignee: 'Ana Oliveira',
-      createdAt: new Date('2024-01-17'),
-      order: 2
-    },
-    {
-      id: 5,
-      title: 'Implementar dashboard analytics',
-      description: 'Criar gráficos e métricas para acompanhamento de vendas',
-      type: 'Epic',
-      priority: 'Alta',
-      status: 'Done',
-      estimatedHours: 20,
-      assignee: 'Carlos Mendes',
-      createdAt: new Date('2024-01-10'),
-      order: 1
-    }
-  ])
+  const tasks = ref([])
 
   const taskTypes = ref(['Story', 'Task', 'Bug', 'Epic'])
   const priorities = ref(['Baixa', 'Média', 'Alta', 'Crítica'])

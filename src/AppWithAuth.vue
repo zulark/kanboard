@@ -1,7 +1,12 @@
 <template>
     <div class="min-h-screen bg-gray-50">
-        <!-- Mostrar form de autenticação se não estiver logado -->
-        <AuthForm v-if="!isAuthenticated" @authenticated="handleAuthenticated" />
+        <!-- Mostrar form de reset de senha se estiver em modo de reset -->
+        <PasswordReset v-if="isResetMode" 
+                      @reset-success="handleResetSuccess" 
+                      @cancel-reset="handleCancelReset" />
+        
+        <!-- Mostrar form de autenticação se não estiver logado e não estiver em reset -->
+        <AuthForm v-else-if="!isAuthenticated" @authenticated="handleAuthenticated" />
 
         <!-- App principal se estiver logado -->
         <div v-else>
@@ -39,18 +44,6 @@
                     <div class="card text-center">
                         <div class="text-2xl font-bold text-gray-900">{{ taskStats.total }}</div>
                         <div class="text-sm text-gray-600">Total de Tarefas</div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="text-2xl font-bold text-blue-600">{{ taskStats.todo }}</div>
-                        <div class="text-sm text-gray-600">A Fazer</div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="text-2xl font-bold text-yellow-600">{{ taskStats.inProgress }}</div>
-                        <div class="text-sm text-gray-600">Em Progresso</div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="text-2xl font-bold text-green-600">{{ taskStats.done }}</div>
-                        <div class="text-sm text-gray-600">Concluídas</div>
                     </div>
                     <div class="card text-center">
                         <div class="text-2xl font-bold text-purple-600">{{ taskStats.totalHours }}h</div>
@@ -117,13 +110,19 @@
 import { ref, onMounted, computed } from 'vue'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import { useAuth } from './composables/useAuth.js'
+import { usePasswordReset } from './composables/usePasswordReset.js'
 import { useTasks } from './composables/useTasksSupabase.js'
 import TaskCard from './components/TaskCard.vue'
 import TaskForm from './components/TaskForm.vue'
 import AuthForm from './components/AuthForm.vue'
+import PasswordReset from './components/PasswordReset.vue'
 
 // Autenticação
 const { user, isAuthenticated, signOut, initAuth } = useAuth()
+
+// Sistema de reset de senha
+const { isResetMode, checkForResetTokens, exitResetMode } = usePasswordReset()
+
 console.log(user)
 // Computed para extrair o nome do usuário
 const userName = computed(() => {
@@ -167,6 +166,17 @@ const handleAuthenticated = () => {
 
 const handleSignOut = async () => {
     await signOut()
+}
+
+// Funções de reset de senha
+const handleResetSuccess = () => {
+    // Após sucesso do reset, volta para tela normal
+    exitResetMode()
+}
+
+const handleCancelReset = () => {
+    // Se usuário cancelar reset, volta para login
+    exitResetMode()
 }
 
 // Funções de tarefas
@@ -267,7 +277,13 @@ const getDropIndex = (event, status) => {
 }
 
 // Inicializar autenticação
-onMounted(() => {
-    initAuth()
+onMounted(async () => {
+    // Primeiro verifica se há tokens de reset na URL
+    const hasResetTokens = await checkForResetTokens()
+    
+    // Se não há tokens de reset, inicializa a autenticação normal
+    if (!hasResetTokens) {
+        initAuth()
+    }
 })
 </script>
