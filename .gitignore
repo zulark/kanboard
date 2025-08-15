@@ -2,3 +2,7 @@
 .env*
 SUPABASE_SETUP.md
 supabase-setup.sql
+
+*.tmp
+
+node_modules
