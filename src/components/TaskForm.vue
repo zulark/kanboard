@@ -1,15 +1,15 @@
 <template>
   <!-- Modal Backdrop -->
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 shadow-lg rounded-md bg-white">
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-black/50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
       <!-- Modal Header -->
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-medium text-gray-900">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
           {{ task ? 'Editar Tarefa' : 'Nova Tarefa' }}
         </h3>
         <button 
           @click="$emit('cancel')"
-          class="text-gray-400 hover:text-gray-600"
+          class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
         >
           <XMarkIcon class="h-6 w-6" />
         </button>
@@ -19,7 +19,7 @@
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Title -->
         <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Título da Tarefa *
           </label>
           <input
@@ -27,21 +27,21 @@
             v-model="form.title"
             type="text"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Ex: Implementar sistema de login"
           />
         </div>
 
         <!-- Description -->
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Descrição
           </label>
           <textarea
             id="description"
             v-model="form.description"
             rows="4"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Descreva os detalhes da tarefa..."
           ></textarea>
         </div>
@@ -50,14 +50,14 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Type -->
           <div>
-            <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tipo *
             </label>
             <select
               id="type"
               v-model="form.type"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Selecione um tipo</option>
               <option v-for="type in taskTypes" :key="type" :value="type">
@@ -68,14 +68,14 @@
 
           <!-- Priority -->
           <div>
-            <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Prioridade *
             </label>
             <select
               id="priority"
               v-model="form.priority"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Selecione uma prioridade</option>
               <option v-for="priority in priorities" :key="priority" :value="priority">
@@ -89,14 +89,14 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Status -->
           <div>
-            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Status *
             </label>
             <select
               id="status"
               v-model="form.status"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Selecione um status</option>
               <option v-for="status in statuses" :key="status" :value="status">
@@ -107,7 +107,7 @@
 
           <!-- Estimated Hours -->
           <div>
-            <label for="estimatedHours" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="estimatedHours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Estimativa (horas) *
             </label>
             <input
@@ -117,7 +117,7 @@
               min="0.5"
               step="0.5"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Ex: 8"
             />
           </div>
@@ -125,7 +125,7 @@
 
         <!-- Assignee -->
         <div>
-          <label for="assignee" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="assignee" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Responsável *
           </label>
           <input
@@ -133,13 +133,13 @@
             v-model="form.assignee"
             type="text"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Nome do programador responsável"
           />
         </div>
 
         <!-- Form Actions -->
-        <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+        <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             @click="$emit('cancel')"

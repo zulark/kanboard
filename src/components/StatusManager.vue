@@ -1,12 +1,12 @@
 <template>
     <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="handleBackdropClick">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-lg bg-white">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700">
             <!-- Header -->
-            <div class="flex items-center justify-between pb-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                     {{ editingStatus ? 'Editar Status' : 'Gerenciar Status da Board' }}
                 </h3>
-                <button @click="$emit('cancel')" class="text-gray-400 hover:text-gray-600">
+                <button @click="$emit('cancel')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -17,12 +17,12 @@
             <div class="mt-6">
                 <!-- Lista de Status Existentes (se não estiver editando) -->
                 <div v-if="!editingStatus" class="mb-6">
-                    <h4 class="text-md font-medium text-gray-900 mb-4">Status Atuais</h4>
+                    <h4 class="text-md font-medium text-gray-900 dark:text-gray-200 mb-4">Status Atuais</h4>
                     <div class="space-y-3 max-h-60 overflow-y-auto">
                         <div 
                             v-for="status in sortedStatuses" 
                             :key="status.id"
-                            class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                            class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
                         >
                             <div class="flex items-center space-x-3">
                                 <!-- Indicador de cor -->
@@ -36,8 +36,8 @@
                                 
                                 <!-- Nome e informações -->
                                 <div>
-                                    <span class="font-medium text-gray-900">{{ status.name }}</span>
-                                    <span v-if="status.isDefault" class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ status.name }}</span>
+                                    <span v-if="status.isDefault" class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200">
                                         Padrão
                                     </span>
                                 </div>
@@ -47,14 +47,14 @@
                             <div class="flex items-center space-x-2">
                                 <button 
                                     @click="startEditing(status)"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
                                 >
                                     Editar
                                 </button>
                                 <button 
                                     v-if="!status.isDefault"
                                     @click="confirmDelete(status)"
-                                    class="text-red-600 hover:text-red-800 text-sm font-medium"
+                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
                                 >
                                     Excluir
                                 </button>
@@ -64,15 +64,15 @@
                 </div>
 
                 <!-- Formulário de Novo/Editar Status -->
-                <div v-if="showForm" class="border-t pt-6">
-                    <h4 class="text-md font-medium text-gray-900 mb-4">
+                <div v-if="showForm" class="border-t pt-6 dark:border-gray-700">
+                    <h4 class="text-md font-medium text-gray-900 dark:text-gray-200 mb-4">
                         {{ editingStatus ? 'Editar Status' : 'Novo Status' }}
                     </h4>
                     
                     <form @submit.prevent="handleSubmit" class="space-y-4">
                         <!-- Nome do Status -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Nome do Status
                             </label>
                             <input 
@@ -80,25 +80,25 @@
                                 type="text" 
                                 required
                                 maxlength="30"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                                 placeholder="Ex: Em Revisão, Aguardando Deploy..."
                             />
                         </div>
 
                         <!-- Seletor de Cor -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Cor do Status
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Cor do Status (Tema Claro)
                             </label>
                             <div class="grid grid-cols-5 gap-2">
                                 <button 
                                     v-for="color in colorOptions" 
                                     :key="color.value"
                                     type="button"
-                                    @click="selectColor(color)"
+                                    @click="selectColor(color, 'light')"
                                     class="relative w-12 h-12 rounded-lg border-2 hover:scale-105 transition-transform"
                                     :class="{ 
-                                        'ring-2 ring-offset-2 ring-gray-400': form.color === color.value 
+                                        'ring-2 ring-offset-2 ring-gray-400 dark:ring-offset-gray-800': form.color === color.value 
                                     }"
                                     :style="{ backgroundColor: color.value }"
                                     :title="color.name"
@@ -112,21 +112,48 @@
                             </div>
                         </div>
 
+                        <!-- Seletor de Cor (Tema Escuro) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Cor de Fundo do Card (Tema Escuro)
+                            </label>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button 
+                                    v-for="color in colorOptions" 
+                                    :key="color.bgDark"
+                                    type="button"
+                                    @click="selectColor(color, 'dark')"
+                                    class="relative w-12 h-12 rounded-lg border-2 hover:scale-105 transition-transform"
+                                    :class="{ 
+                                        'ring-2 ring-offset-2 ring-gray-400 dark:ring-offset-gray-800': form.bgColorDark === color.bgDark
+                                    }"
+                                    :style="{ backgroundColor: color.bgDark }"
+                                    :title="color.name"
+                                >
+                                    <span v-if="form.bgColorDark === color.bgDark" class="absolute inset-0 flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Preview do Status -->
                         <div v-if="form.name || form.color">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Preview
                             </label>
-                            <div class="p-4 rounded-lg border-2 border-dashed border-gray-300">
+                            <div class="p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
                                 <div class="flex items-center space-x-3">
                                     <div 
                                         class="w-3 h-3 rounded-full"
                                         :style="{ backgroundColor: form.color }"
                                     ></div>
-                                    <span class="font-semibold text-gray-900">
+                                    <span class="font-semibold text-gray-900 dark:text-gray-100">
                                         {{ form.name || 'Nome do Status' }}
                                     </span>
-                                    <span class="text-sm text-gray-600 bg-white px-2 py-1 rounded-full shadow-sm">
+                                    <span class="text-sm text-gray-600 bg-white px-2 py-1 rounded-full shadow-sm dark:bg-gray-700 dark:text-gray-300">
                                         0
                                     </span>
                                 </div>
@@ -138,7 +165,7 @@
                             <button 
                                 type="button"
                                 @click="cancelForm"
-                                class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500"
                             >
                                 Cancelar
                             </button>
@@ -158,7 +185,7 @@
                     <div></div>
                     <button 
                         @click="showForm = true"
-                        class="flex items-center space-x-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+                        class="flex items-center space-x-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors dark:bg-sky-700 dark:hover:bg-sky-800"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -169,16 +196,16 @@
             </div>
 
             <!-- Footer -->
-            <div v-if="!editingStatus && !showForm" class="flex justify-between items-center pt-6 border-t border-gray-200">
+            <div v-if="!editingStatus && !showForm" class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button 
                     @click="confirmReset"
-                    class="text-sm text-gray-600 hover:text-gray-800"
+                    class="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
                 >
                     Resetar para Padrão
                 </button>
                 <button 
                     @click="$emit('cancel')"
-                    class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors dark:bg-gray-600 dark:hover:bg-gray-700"
                 >
                     Fechar
                 </button>
@@ -211,7 +238,8 @@ const form = ref({
     name: '',
     color: '',
     bgColor: '',
-    borderColor: ''
+    borderColor: '',
+    bgColorDark: ''
 })
 
 // Limpar formulário
@@ -220,15 +248,20 @@ const clearForm = () => {
         name: '',
         color: '',
         bgColor: '',
-        borderColor: ''
+        borderColor: '',
+        bgColorDark: ''
     }
 }
 
 // Selecionar cor
-const selectColor = (color) => {
-    form.value.color = color.value
-    form.value.bgColor = color.bg
-    form.value.borderColor = color.border
+const selectColor = (color, theme) => {
+    if (theme === 'light') {
+        form.value.color = color.value
+        form.value.bgColor = color.bg
+        form.value.borderColor = color.border
+    } else {
+        form.value.bgColorDark = color.bgDark
+    }
 }
 
 // Iniciar edição
@@ -238,7 +271,8 @@ const startEditing = (status) => {
         name: status.name,
         color: status.color,
         bgColor: status.bgColor,
-        borderColor: status.borderColor
+        borderColor: status.borderColor,
+        bgColorDark: status.bgColorDark
     }
     showForm.value = true
 }

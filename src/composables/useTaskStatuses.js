@@ -19,6 +19,7 @@ export function useTaskStatuses() {
       name: 'To Do',
       color: '#3b82f6', // blue-500
       bgColor: '#dbeafe', // blue-100
+      bgColorDark: '#1e3a8a', // blue-900
       borderColor: '#93c5fd', // blue-300
       order: 1,
       isDefault: true
@@ -28,6 +29,7 @@ export function useTaskStatuses() {
       name: 'In Progress',
       color: '#eab308', // yellow-500
       bgColor: '#fef3c7', // yellow-100
+      bgColorDark: '#854d0e', // yellow-900
       borderColor: '#fde047', // yellow-300
       order: 2,
       isDefault: true
@@ -37,6 +39,7 @@ export function useTaskStatuses() {
       name: 'Done',
       color: '#22c55e', // green-500
       bgColor: '#dcfce7', // green-100
+      bgColorDark: '#166534', // green-900
       borderColor: '#86efac', // green-300
       order: 3,
       isDefault: true
@@ -70,16 +73,16 @@ export function useTaskStatuses() {
     })
   }
   const colorOptions = [
-    { name: 'Azul', value: '#3b82f6', bg: '#dbeafe', border: '#93c5fd' },
-    { name: 'Verde', value: '#22c55e', bg: '#dcfce7', border: '#86efac' },
-    { name: 'Amarelo', value: '#eab308', bg: '#fef3c7', border: '#fde047' },
-    { name: 'Vermelho', value: '#ef4444', bg: '#fee2e2', border: '#fca5a5' },
-    { name: 'Roxo', value: '#8b5cf6', bg: '#ede9fe', border: '#c4b5fd' },
-    { name: 'Rosa', value: '#ec4899', bg: '#fce7f3', border: '#f9a8d4' },
-    { name: 'Laranja', value: '#f97316', bg: '#fed7aa', border: '#fdba74' },
-    { name: 'Teal', value: '#14b8a6', bg: '#ccfbf1', border: '#7dd3fc' },
-    { name: 'Cinza', value: '#6b7280', bg: '#f3f4f6', border: '#d1d5db' },
-    { name: 'Indigo', value: '#6366f1', bg: '#e0e7ff', border: '#c7d2fe' }
+    { name: 'Azul', value: '#3b82f6', bg: '#dbeafe', bgDark: '#1e3a8a', border: '#93c5fd' },
+    { name: 'Verde', value: '#22c55e', bg: '#dcfce7', bgDark: '#166534', border: '#86efac' },
+    { name: 'Amarelo', value: '#eab308', bg: '#fef3c7', bgDark: '#854d0e', border: '#fde047' },
+    { name: 'Vermelho', value: '#ef4444', bg: '#fee2e2', bgDark: '#991b1b', border: '#fca5a5' },
+    { name: 'Roxo', value: '#8b5cf6', bg: '#ede9fe', bgDark: '#5b21b6', border: '#c4b5fd' },
+    { name: 'Rosa', value: '#ec4899', bg: '#fce7f3', bgDark: '#9d174d', border: '#f9a8d4' },
+    { name: 'Laranja', value: '#f97316', bg: '#fed7aa', bgDark: '#9a3412', border: '#fdba74' },
+    { name: 'Teal', value: '#14b8a6', bg: '#ccfbf1', bgDark: '#0f766e', border: '#7dd3fc' },
+    { name: 'Cinza', value: '#6b7280', bg: '#f3f4f6', bgDark: '#374151', border: '#d1d5db' },
+    { name: 'Indigo', value: '#6366f1', bg: '#e0e7ff', bgDark: '#4338ca', border: '#c7d2fe' }
   ]
 
   // Computed para nomes dos status (para compatibilidade)
@@ -100,15 +103,11 @@ export function useTaskStatuses() {
       loading.value = true
       error.value = null
 
-      console.log('🔄 Carregando status do banco...')
 
       if (!user.value) {
-        console.log('⚠️ Usuário não autenticado, usando status padrão')
         statuses.value = [...defaultStatuses]
         return
       }
-
-      console.log('👤 Usuário logado:', user.value.id)
 
       const { data: userStatuses, error: dbError } = await supabase
         .from(TABLES.STATUS)
@@ -122,19 +121,15 @@ export function useTaskStatuses() {
         // Verificar se é erro de tabela não existir
         if (dbError.message.includes('relation') && dbError.message.includes('does not exist')) {
           console.warn('🚨 TABELA task_statuses NÃO EXISTE!')
-          console.log('🔧 EXECUTE A MIGRAÇÃO: database_migration.sql')
-          console.log('💾 Tentando carregar do localStorage temporário...')
           
           // Tentar carregar do localStorage como fallback
           const tempStatuses = JSON.parse(localStorage.getItem('temp_custom_statuses') || '[]')
           if (tempStatuses.length > 0) {
-            console.log('✅ Status encontrados no localStorage:', tempStatuses.length)
             statuses.value = [...defaultStatuses, ...tempStatuses]
             return
           }
         }
         
-        console.log('📋 Usando status padrão devido ao erro')
         statuses.value = [...defaultStatuses]
         return
       }
@@ -146,13 +141,12 @@ export function useTaskStatuses() {
           name: status.name,
           color: status.color,
           bgColor: status.bg_color,
+          bgColorDark: status.bg_color_dark,
           borderColor: status.border_color,
           order: status.order_index,
-          isDefault: status.is_default || false
+          is_default: status.is_default || false
         }))
-        console.log('✅ Status carregados do banco:', statuses.value.length, statuses.value)
       } else {
-        console.log('📝 Nenhum status encontrado, criando padrão...')
         await initializeDefaultStatuses()
       }
     } catch (err) {
@@ -175,6 +169,7 @@ export function useTaskStatuses() {
         name: status.name,
         color: status.color,
         bg_color: status.bgColor,
+        bg_color_dark: status.bgColorDark,
         border_color: status.borderColor,
         order_index: status.order,
         is_default: status.isDefault
@@ -191,7 +186,6 @@ export function useTaskStatuses() {
       }
 
       statuses.value = [...defaultStatuses]
-      console.log('✅ Status padrão inicializados no banco')
     } catch (err) {
       console.error('❌ Erro ao inicializar status padrão:', err)
       statuses.value = [...defaultStatuses]
@@ -205,7 +199,6 @@ export function useTaskStatuses() {
         throw new Error('Usuário não autenticado')
       }
 
-      console.log('💾 Tentando salvar no banco:', status.name)
 
       const statusData = {
         id: status.id,
@@ -213,6 +206,7 @@ export function useTaskStatuses() {
         name: status.name,
         color: status.color,
         bg_color: status.bgColor,
+        bg_color_dark: status.bgColorDark,
         border_color: status.borderColor,
         order_index: status.order,
         is_default: status.isDefault || false
@@ -228,7 +222,6 @@ export function useTaskStatuses() {
         // Verificar se é erro de tabela não existir
         if (saveError.message.includes('relation') && saveError.message.includes('does not exist')) {
           console.warn('🚨 TABELA task_statuses NÃO EXISTE!')
-          console.log('🔧 EXECUTE A MIGRAÇÃO: database_migration.sql')
           
           // Armazenar temporariamente no localStorage como fallback
           const localStatuses = JSON.parse(localStorage.getItem('temp_custom_statuses') || '[]')
@@ -241,7 +234,6 @@ export function useTaskStatuses() {
           }
           
           localStorage.setItem('temp_custom_statuses', JSON.stringify(localStatuses))
-          console.log('💾 Status salvo temporariamente no localStorage')
           
           return { success: true, isTemporary: true }
         }
@@ -249,7 +241,6 @@ export function useTaskStatuses() {
         throw saveError
       }
 
-      console.log('✅ Status salvo no banco com sucesso')
       return { success: true }
     } catch (err) {
       console.error('❌ Erro ao salvar status no banco:', err)
@@ -262,7 +253,6 @@ export function useTaskStatuses() {
     try {
       loading.value = true
       
-      console.log('➕ Adicionando novo status:', statusData)
 
       // Validar nome único
       if (statuses.value.some(s => s.name.toLowerCase() === statusData.name.toLowerCase())) {
@@ -278,13 +268,13 @@ export function useTaskStatuses() {
         name: statusData.name,
         color: statusData.color,
         bgColor: statusData.bgColor,
+        bgColorDark: statusData.bgColorDark,
         borderColor: statusData.borderColor,
         order: maxOrder + 1,
         isDefault: false,
         ...statusData
       }
 
-      console.log('💾 Salvando no banco:', newStatus)
 
       // Salvar no banco primeiro
       const saveResult = await saveStatusToDb(newStatus)
@@ -292,14 +282,11 @@ export function useTaskStatuses() {
         throw new Error(saveResult.error)
       }
 
-      console.log('✅ Salvo no banco, adicionando à lista local')
       statuses.value.push(newStatus)
       
       // Notificar mudança
       notifyStatusChange('create', newStatus)
       
-      console.log('✅ Status adicionado com sucesso:', newStatus)
-      console.log('📊 Total de status agora:', statuses.value.length)
       
       return { success: true, status: newStatus }
     } catch (err) {
@@ -343,7 +330,6 @@ export function useTaskStatuses() {
       // Notificar mudança
       notifyStatusChange('update', updatedStatus)
 
-      console.log('✅ Status atualizado:', updatedStatus)
       return { success: true, status: updatedStatus }
     } catch (err) {
       console.error('❌ Erro ao atualizar status:', err)
@@ -401,7 +387,6 @@ export function useTaskStatuses() {
       // Notificar mudança
       notifyStatusChange('delete', statusToDelete)
 
-      console.log('✅ Status removido:', statusToDelete.name)
       return { success: true }
     } catch (err) {
       console.error('❌ Erro ao deletar status:', err)
@@ -432,7 +417,6 @@ export function useTaskStatuses() {
         throw updateError
       }
 
-      console.log(`✅ Tarefas migradas de "${oldStatus.name}" para "${newStatus.name}"`)
       return { success: true }
     } catch (err) {
       console.error('❌ Erro ao migrar tarefas:', err)
@@ -466,7 +450,6 @@ export function useTaskStatuses() {
         }
       }
 
-      console.log('✅ Status reordenados')
       return { success: true }
     } catch (err) {
       console.error('❌ Erro ao reordenar status:', err)
@@ -503,7 +486,6 @@ export function useTaskStatuses() {
       // Notificar mudança
       notifyStatusChange('reset', null)
       
-      console.log('✅ Status resetados para padrão')
       return { success: true }
     } catch (err) {
       console.error('❌ Erro ao resetar status:', err)

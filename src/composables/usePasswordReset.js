@@ -33,9 +33,6 @@ export function usePasswordReset() {
 
       // Se há erro na URL de reset, também é considerado modo reset
       if (hasResetError || (isPasswordRecovery && window.location.pathname.includes('reset'))) {
-        console.log('🔐 Link de reset detectado na URL (com erro ou válido)')
-        
-        // Se há erro, define a mensagem de erro
         if (hasResetError) {
           let errorMsg = 'Link de recuperação inválido ou expirado'
           
@@ -61,7 +58,6 @@ export function usePasswordReset() {
 
       // Se há tokens válidos, tenta configurar a sessão
       if (isPasswordRecovery && hasTokens) {
-        console.log('🔐 Tokens de reset válidos detectados na URL')
         
         // Configura a sessão com os tokens de reset
         const { data, error: sessionError } = await supabase.auth.setSession({
@@ -70,7 +66,6 @@ export function usePasswordReset() {
         })
 
         if (sessionError) {
-          console.error('❌ Erro ao configurar sessão de reset:', sessionError)
           error.value = 'Erro ao processar link de recuperação. Solicite um novo link.'
           isResetMode.value = true
           
@@ -82,7 +77,6 @@ export function usePasswordReset() {
         }
 
         if (data.session) {
-          console.log('✅ Sessão de reset configurada com sucesso')
           isResetMode.value = true
           resetSession.value = data.session
           
@@ -96,7 +90,6 @@ export function usePasswordReset() {
 
       return false
     } catch (err) {
-      console.error('❌ Erro ao verificar tokens de reset:', err)
       error.value = translateAuthError(err.message)
       return false
     }
@@ -112,8 +105,6 @@ export function usePasswordReset() {
         throw new Error('Sessão de reset não encontrada')
       }
 
-      console.log('🔄 Atualizando senha...')
-      
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword
       })
@@ -122,15 +113,11 @@ export function usePasswordReset() {
         throw updateError
       }
 
-      console.log('✅ Senha atualizada com sucesso')
-      
-      // Limpa o estado de reset
       isResetMode.value = false
       resetSession.value = null
       
       return { error: null }
     } catch (err) {
-      console.error('❌ Erro ao atualizar senha:', err)
       const translatedError = translateAuthError(err.message)
       error.value = translatedError
       return { error: translatedError }

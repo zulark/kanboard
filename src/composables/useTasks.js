@@ -1,134 +1,299 @@
 import { ref, computed, watch } from 'vue'
-import { supabase, TABLES } from '../lib/supabase.js'
+import { supabase, TABLES, TASK_TYPES, TASK_PRIORITIES, TASK_STATUSES } from '../lib/supabase.js'
 import { useAuth } from './useAuth.js'
 import { useTaskStatuses } from './useTaskStatuses.js'
+import { translateAuthError } from '../utils/errorMessages.js'
 
 export function useTasks() {
   const { user } = useAuth()
   const { sortedStatuses, statusNames, loadStatuses, onStatusChange } = useTaskStatuses()
   
+  const tasks = ref([])
   const loading = ref(false)
   const error = ref(null)
-  const tasks = ref([])
 
-  const taskTypes = ref(['Story', 'Task', 'Bug', 'Epic'])
-  const priorities = ref(['Baixa', 'Média', 'Alta', 'Crítica'])
-  
-  // Usar status do sistema de status personalizáveis
+  const taskTypes = ref(TASK_TYPES)
+  const priorities = ref(TASK_PRIORITIES)
+  // Usar status do sistema personalizável
   const statuses = computed(() => statusNames.value)
 
-  // Inicializar status quando houver usuário autenticado
+  // Inicializar status e carregar tarefas quando houver usuário autenticado
   watch(user, async (newUser) => {
     if (newUser) {
       await loadStatuses()
+      await loadTasks()
+    } else {
+      tasks.value = []
     }
   }, { immediate: true })
 
-  // Listener para mudanças nos status - força re-sync das tarefas
+  // Listener para mudanças nos status - recarrega tarefas automaticamente
   onStatusChange(async (event) => {
-    console.log('🔄 Status mudou (local):', event.action, event.status?.name)
-    // Re-sincronizar tasksByStatus com os novos status
-    syncTasksByStatus()
+    // Recarregar tarefas para refletir mudanças nos status
+    if (user.value) {
+      await loadTasks()
+    }
   })
 
-  const addTask = (task) => {
-    // Calcular a próxima ordem para o status
-    const tasksInStatus = tasks.value.filter(t => t.status === task.status)
-    const maxOrder = tasksInStatus.length > 0 ? Math.max(...tasksInStatus.map(t => t.order)) : 0
-    
-    const newTask = {
-      id: Date.now(),
-      ...task,
-      createdAt: new Date(),
-      order: maxOrder + 1
+  // Função para carregar tarefas do usuário
+  const loadTasks = async () => {
+    if (!user.value) {
+      tasks.value = []
+      return
     }
-    tasks.value.push(newTask)
-  }
 
-  const updateTask = (id, updates) => {
-    const index = tasks.value.findIndex(task => task.id === id)
-    if (index !== -1) {
-      tasks.value[index] = { ...tasks.value[index], ...updates }
+    try {
+      loading.value = true
+      error.value = null
+
+      const { data, error: fetchError } = await supabase
+        .from(TABLES.TASKS)
+        .select('*')
+        .eq('user_id', user.value.id)
+        .order('order_index', { ascending: true })
+
+      if (fetchError) {
+        throw fetchError
+      }
+
+      // Converter campos do banco para formato do frontend
+      tasks.value = (data || []).map(task => ({
+        ...task,
+        estimatedHours: task.estimated_hours,
+        createdAt: new Date(task.created_at),
+        order: task.order_index
+      }))
+    } catch (err) {
+      error.value = err.message
+      console.error('Erro ao carregar tarefas:', err)
+    } finally {
+      loading.value = false
     }
   }
 
-  const deleteTask = (id) => {
-    const index = tasks.value.findIndex(task => task.id === id)
-    if (index !== -1) {
-      tasks.value.splice(index, 1)
+  // Função para adicionar nova tarefa
+  const addTask = async (taskData) => {
+    if (!user.value) {
+      error.value = 'Usuário não autenticado'
+      return { success: false, error: 'Usuário não autenticado' }
+    }
+
+    try {
+      loading.value = true
+      error.value = null
+
+      // Calcular a próxima ordem para o status
+      const tasksInStatus = tasks.value.filter(t => t.status === taskData.status)
+      const maxOrder = tasksInStatus.length > 0 ? Math.max(...tasksInStatus.map(t => t.order)) : 0
+
+      const newTask = {
+        user_id: user.value.id,
+        title: taskData.title,
+        description: taskData.description || '',
+        type: taskData.type,
+        priority: taskData.priority,
+        status: taskData.status,
+        estimated_hours: Number(taskData.estimatedHours) || 1.0,
+        assignee: taskData.assignee || '',
+        order_index: maxOrder + 1
+      }
+
+      const { data, error: insertError } = await supabase
+        .from(TABLES.TASKS)
+        .insert([newTask])
+        .select()
+        .single()
+
+      if (insertError) {
+        throw insertError
+      }
+
+      // Converter e adicionar à lista local
+      const formattedTask = {
+        ...data,
+        estimatedHours: data.estimated_hours,
+        createdAt: new Date(data.created_at),
+        order: data.order_index
+      }
+      
+      tasks.value.push(formattedTask)
+      return { success: true, data: formattedTask }
+    } catch (err) {
+      error.value = err.message
+      console.error('Erro ao criar tarefa:', err)
+      return { success: false, error: err.message }
+    } finally {
+      loading.value = false
     }
   }
 
-  const tasksByStatus = ref({})
+  // Função para atualizar tarefa
+  const updateTask = async (taskId, updates) => {
+    if (!user.value) {
+      error.value = 'Usuário não autenticado'
+      return { success: false, error: 'Usuário não autenticado' }
+    }
 
-  // Função para sincronizar tasksByStatus com tasks
-  const syncTasksByStatus = () => {
-    // Criar objeto dinâmico baseado nos status atuais
-    const newTasksByStatus = {}
-    
-    sortedStatuses.value.forEach(status => {
-      newTasksByStatus[status.name] = tasks.value
-        .filter(task => task.status === status.name)
-        .sort((a, b) => a.order - b.order)
-    })
-    
-    tasksByStatus.value = newTasksByStatus
-  }
+    try {
+      loading.value = true
+      error.value = null
 
-  // Watcher para atualizar tasksByStatus quando os status mudarem
-  watch([tasks, sortedStatuses], syncTasksByStatus, { deep: true, immediate: true })
+      // Converter nomes de propriedades se necessário
+      const dbUpdates = { ...updates }
+      
+      if (updates.estimatedHours !== undefined) {
+        dbUpdates.estimated_hours = Number(updates.estimatedHours)
+        delete dbUpdates.estimatedHours
+      }
 
-  // Função para atualizar tasks quando tasksByStatus mudar (para drag and drop)
-  const syncTasksFromStatus = () => {
-    const allTasks = []
-    Object.keys(tasksByStatus.value).forEach(status => {
-      tasksByStatus.value[status].forEach((task, index) => {
-        if (task.status !== status) {
-          task.status = status
+      if (updates.order !== undefined) {
+        dbUpdates.order_index = updates.order
+        delete dbUpdates.order
+      }
+
+      const { data, error: updateError } = await supabase
+        .from(TABLES.TASKS)
+        .update(dbUpdates)
+        .eq('id', taskId)
+        .eq('user_id', user.value.id)
+        .select()
+        .single()
+
+      if (updateError) {
+        throw updateError
+      }
+
+      // Atualizar localmente
+      const index = tasks.value.findIndex(task => task.id === taskId)
+      if (index !== -1) {
+        tasks.value[index] = {
+          ...data,
+          estimatedHours: data.estimated_hours,
+          createdAt: new Date(data.created_at),
+          order: data.order_index
         }
-        // Atualizar ordem baseada na posição na lista
-        task.order = index + 1
-        allTasks.push(task)
-      })
-    })
-    tasks.value = allTasks
+      }
+
+      return { success: true, data }
+    } catch (err) {
+      error.value = err.message
+      console.error('Erro ao atualizar tarefa:', err)
+      return { success: false, error: err.message }
+    } finally {
+      loading.value = false
+    }
   }
 
-  // Função para reordenar tarefas dentro do mesmo status
-  const reorderTasks = (status, fromIndex, toIndex) => {
-    const statusTasks = [...tasksByStatus.value[status]]
-    const [movedTask] = statusTasks.splice(fromIndex, 1)
-    statusTasks.splice(toIndex, 0, movedTask)
-    
-    // Atualizar as ordens
-    statusTasks.forEach((task, index) => {
-      task.order = index + 1
-    })
-    
-    tasksByStatus.value[status] = statusTasks
-    syncTasksFromStatus()
+  // Função para deletar tarefa
+  const deleteTask = async (taskId) => {
+    if (!user.value) {
+      error.value = 'Usuário não autenticado'
+      return { success: false, error: 'Usuário não autenticado' }
+    }
+
+    try {
+      loading.value = true
+      error.value = null
+
+      const { error: deleteError } = await supabase
+        .from(TABLES.TASKS)
+        .delete()
+        .eq('id', taskId)
+        .eq('user_id', user.value.id)
+
+      if (deleteError) {
+        throw deleteError
+      }
+
+      // Remover localmente
+      const index = tasks.value.findIndex(task => task.id === taskId)
+      if (index !== -1) {
+        tasks.value.splice(index, 1)
+      }
+
+      return { success: true }
+    } catch (err) {
+      error.value = err.message
+      console.error('Erro ao deletar tarefa:', err)
+      return { success: false, error: err.message }
+    } finally {
+      loading.value = false
+    }
   }
+
+  // Função para reordenar tarefas
+  const reorderTasks = async (status, fromIndex, toIndex) => {
+    if (!user.value) {
+      error.value = 'Usuário não autenticado'
+      return { success: false, error: 'Usuário não autenticado' }
+    }
+
+    try {
+      const statusTasks = tasksByStatus.value[status]
+      const tasksCopy = [...statusTasks]
+      
+      // Mover item localmente
+      const [movedTask] = tasksCopy.splice(fromIndex, 1)
+      tasksCopy.splice(toIndex, 0, movedTask)
+      
+      // Atualizar ordens no banco
+      const updates = tasksCopy.map((task, index) => ({
+        id: task.id,
+        order_index: index + 1
+      }))
+
+      for (const update of updates) {
+        await supabase
+          .from(TABLES.TASKS)
+          .update({ order_index: update.order_index })
+          .eq('id', update.id)
+          .eq('user_id', user.value.id)
+      }
+
+      // Recarregar tarefas para sincronizar
+      await loadTasks()
+      
+      return { success: true }
+    } catch (err) {
+      error.value = err.message
+      console.error('Erro ao reordenar tarefas:', err)
+      return { success: false, error: err.message }
+    }
+  }
+
+  // Computadas
+  const tasksByStatus = computed(() => {
+    const result = {}
+    sortedStatuses.value.forEach(status => {
+      result[status.name] = tasks.value
+        .filter(task => task.status === status.name)
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+    })
+    return result
+  })
 
   const totalEstimatedHours = computed(() => {
-    return tasks.value.reduce((total, task) => total + task.estimatedHours, 0)
+    return tasks.value.reduce((total, task) => total + (task.estimatedHours || 0), 0)
   })
 
   const taskStats = computed(() => {
-    const stats = { total: tasks.value.length, totalHours: totalEstimatedHours.value }
-    
-    // Adicionar estatísticas dinâmicas baseadas nos status atuais
-    sortedStatuses.value.forEach(status => {
-      const statusKey = status.name.toLowerCase().replace(/\s+/g, '')
-      stats[statusKey] = tasks.value.filter(t => t.status === status.name).length
-    })
-    
-    // Manter compatibilidade com os nomes antigos
-    stats.todo = tasks.value.filter(t => t.status === 'To Do').length
-    stats.inProgress = tasks.value.filter(t => t.status === 'In Progress').length
-    stats.done = tasks.value.filter(t => t.status === 'Done').length
-    
-    return stats
+    return {
+      total: tasks.value.length,
+      todo: tasks.value.filter(t => t.status === 'To Do').length,
+      inProgress: tasks.value.filter(t => t.status === 'In Progress').length,
+      done: tasks.value.filter(t => t.status === 'Done').length,
+      totalHours: totalEstimatedHours.value
+    }
   })
+
+  // Watcher para carregar tarefas quando usuário mudar
+  watch(user, (newUser) => {
+    if (newUser) {
+      loadTasks()
+    } else {
+      tasks.value = []
+    }
+  }, { immediate: true })
 
   return {
     tasks,
@@ -139,11 +304,11 @@ export function useTasks() {
     taskStats,
     loading,
     error,
+    loadTasks,
     addTask,
     updateTask,
     deleteTask,
     reorderTasks,
-    syncTasksFromStatus,
     // Exportar também os status com cores para a UI
     sortedStatuses
   }
