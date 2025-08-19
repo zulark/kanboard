@@ -279,9 +279,9 @@ export function useTasks() {
   const taskStats = computed(() => {
     return {
       total: tasks.value.length,
-      todo: tasks.value.filter(t => t.status === 'To Do').length,
-      inProgress: tasks.value.filter(t => t.status === 'In Progress').length,
-      done: tasks.value.filter(t => t.status === 'Done').length,
+      todo: tasks.value.filter(t => t.status === 'A Fazer').length,
+      inProgress: tasks.value.filter(t => t.status === 'Desenvolvimento').length,
+      done: tasks.value.filter(t => t.status === 'Feito').length,
       totalHours: totalEstimatedHours.value
     }
   })

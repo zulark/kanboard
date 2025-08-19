@@ -161,12 +161,12 @@ const getStatusButtonStyle = (status) => {
 
 const getTypeClass = (type) => {
   const classes = {
-    'Story': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-    'Task': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+    'Funcionalidade': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+    'Tarefa': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
     'Bug': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
-    'Epic': 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300'
+    'Melhoria': 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300'
   }
-  return classes[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+  return classes[type] || 'bg-gray-200 text-gray-800'
 }
 
 const getPriorityClass = (priority) => {

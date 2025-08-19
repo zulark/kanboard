@@ -15,8 +15,8 @@ export function useTaskStatuses() {
   // Status padrão do sistema
   const defaultStatuses = [
     {
-      id: 'todo',
-      name: 'To Do',
+      id: 'a-fazer',
+      name: 'A Fazer',
       color: '#3b82f6', // blue-500
       bgColor: '#dbeafe', // blue-100
       bgColorDark: '#1e3a8a', // blue-900
@@ -25,8 +25,8 @@ export function useTaskStatuses() {
       isDefault: true
     },
     {
-      id: 'in-progress',
-      name: 'In Progress',
+      id: 'desenvolvimento',
+      name: 'Desenvolvimento',
       color: '#eab308', // yellow-500
       bgColor: '#fef3c7', // yellow-100
       bgColorDark: '#854d0e', // yellow-900
@@ -35,8 +35,8 @@ export function useTaskStatuses() {
       isDefault: true
     },
     {
-      id: 'done',
-      name: 'Done',
+      id: 'feito',
+      name: 'Feito',
       color: '#22c55e', // green-500
       bgColor: '#dcfce7', // green-100
       bgColorDark: '#166534', // green-900

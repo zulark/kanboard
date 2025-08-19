@@ -11,6 +11,6 @@ export const TABLES = {
   STATUS: 'task_statuses'
 }
 
-export const TASK_TYPES = ['Story', 'Task', 'Bug', 'Epic']
+export const TASK_TYPES = ['Funcionalidade', 'Tarefa', 'Bug', 'Melhoria']
 export const TASK_PRIORITIES = ['Baixa', 'Média', 'Alta', 'Crítica']
-export const TASK_STATUSES = ['To Do', 'In Progress', 'Done']
+export const TASK_STATUSES = ['A Fazer', 'Em Andamento', 'Feito']

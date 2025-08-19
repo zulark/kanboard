@@ -20,11 +20,26 @@
                     <h4 class="text-md font-medium text-gray-900 dark:text-gray-200 mb-4">Status Atuais</h4>
                     <div class="space-y-3 max-h-60 overflow-y-auto">
                         <div 
-                            v-for="status in sortedStatuses" 
+                            v-for="(status, index) in sortedStatuses" 
                             :key="status.id"
-                            class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                            class="flex items-center justify-between p-3 border rounded-lg transition-all duration-300"
+                            :class="{
+                                'cursor-grab': !editingStatus,
+                                'bg-gray-100 dark:bg-gray-700 shadow-md scale-105': draggingIndex === index,
+                                'border-dashed border-primary-500': dragOverIndex === index,
+                                'border-gray-200 dark:border-gray-600': dragOverIndex !== index
+                            }"
+                            draggable="true"
+                            @dragstart="handleDragStart(index)"
+                            @dragover="handleDragOver($event, index)"
+                            @dragleave="handleDragLeave"
+                            @drop="handleDrop(index)"
+                            @dragend="handleDragEnd"
                         >
                             <div class="flex items-center space-x-3">
+                                <!-- Drag Handle -->
+                                <Bars3Icon class="h-5 w-5 text-gray-400 cursor-grab" />
+
                                 <!-- Indicador de cor -->
                                 <div 
                                     class="w-4 h-4 rounded-full border-2"
@@ -217,6 +232,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useTaskStatuses } from '../composables/useTaskStatuses.js'
+import { Bars3Icon } from '@heroicons/vue/24/solid'
 
 const emit = defineEmits(['save', 'cancel', 'delete', 'reset'])
 
@@ -228,11 +244,15 @@ const {
     addStatus, 
     updateStatus, 
     deleteStatus, 
-    resetToDefault 
+    resetToDefault,
+    reorderStatuses
 } = useTaskStatuses()
 
 const editingStatus = ref(null)
 const showForm = ref(false)
+
+const draggingIndex = ref(null)
+const dragOverIndex = ref(null)
 
 const form = ref({
     name: '',
@@ -241,6 +261,37 @@ const form = ref({
     borderColor: '',
     bgColorDark: ''
 })
+
+// Drag and Drop Handlers
+const handleDragStart = (index) => {
+    draggingIndex.value = index
+}
+
+const handleDragOver = (event, index) => {
+    event.preventDefault()
+    if (index !== draggingIndex.value) {
+        dragOverIndex.value = index
+    }
+}
+
+const handleDragLeave = () => {
+    dragOverIndex.value = null
+}
+
+const handleDrop = async (toIndex) => {
+    if (draggingIndex.value === null || draggingIndex.value === toIndex) {
+        handleDragEnd()
+        return
+    }
+    
+    await reorderStatuses(draggingIndex.value, toIndex)
+    handleDragEnd()
+}
+
+const handleDragEnd = () => {
+    draggingIndex.value = null
+    dragOverIndex.value = null
+}
 
 // Limpar formulário
 const clearForm = () => {
