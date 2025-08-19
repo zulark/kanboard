@@ -365,3 +365,26 @@
   @apply right-0 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent w-8;
 }
 
+/* Prevenir scroll durante drag em mobile */
+.drag-active {
+  overflow: hidden;
+}
+
+/* Melhorar feedback visual para drop zones em mobile */
+.drop-zone-active {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 2px #3B82F6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+@media (max-width: 640px) {
+  .task-card {
+    @apply touch-manipulation;
+  }
+  
+  /* Melhorar área de toque em mobile */
+  .task-card {
+    min-height: 120px;
+  }
+}
+

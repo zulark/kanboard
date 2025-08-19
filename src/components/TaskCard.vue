@@ -5,6 +5,9 @@
     draggable="true"
     @dragstart="handleDragStart"
     @dragend="handleDragEnd"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchEnd"
   >
     <!-- Task Header -->
     <div class="flex items-start justify-between mb-3">
@@ -96,7 +99,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import { useTaskStatuses } from '../composables/useTaskStatuses.js'
 import { useTheme } from '../composables/useTheme.js'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const { sortedStatuses } = useTaskStatuses()
 const { isDarkMode } = useTheme()
@@ -186,6 +189,118 @@ const formatDate = (date) => {
   })
 }
 
+// Touch handling variables
+const touchData = ref({
+  startX: 0,
+  startY: 0,
+  isDragging: false,
+  dragElement: null,
+  dragPreview: null
+})
+
+// Touch event handlers
+const handleTouchStart = (event) => {
+  const touch = event.touches[0]
+  touchData.value.startX = touch.clientX
+  touchData.value.startY = touch.clientY
+  touchData.value.isDragging = false
+  
+  // Store the initial scroll position
+  touchData.value.initialScrollY = window.scrollY
+}
+
+const handleTouchMove = (event) => {
+  if (!event.touches[0]) return
+  
+  const touch = event.touches[0]
+  const deltaX = Math.abs(touch.clientX - touchData.value.startX)
+  const deltaY = Math.abs(touch.clientY - touchData.value.startY)
+  
+  // Start dragging if moved more than 10px
+  if (!touchData.value.isDragging && (deltaX > 10 || deltaY > 10)) {
+    touchData.value.isDragging = true
+    
+    // Prevent page scrolling during drag
+    document.body.classList.add('drag-active')
+    
+    // Create drag preview
+    createDragPreview(event.target, touch.clientX, touch.clientY)
+    
+    // Add visual feedback
+    event.target.classList.add('dragging')
+    
+    // Emit drag start
+    emit('dragStart', props.task)
+  }
+  
+  if (touchData.value.isDragging) {
+    // Prevent default scrolling
+    event.preventDefault()
+    
+    if (touchData.value.dragPreview) {
+      // Update preview position
+      touchData.value.dragPreview.style.left = `${touch.clientX - 150}px`
+      touchData.value.dragPreview.style.top = `${touch.clientY - 50}px`
+    }
+  }
+}
+
+const handleTouchEnd = (event) => {
+  if (!touchData.value.isDragging) return
+  
+  // Remove visual feedback
+  event.target.classList.remove('dragging')
+  
+  // Re-enable page scrolling
+  document.body.classList.remove('drag-active')
+  
+  // Get element under finger
+  const touch = event.changedTouches[0]
+  const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY)
+  
+  // Find drop zone
+  const dropZone = elementBelow?.closest('[data-status]')
+  
+  if (dropZone) {
+    const newStatus = dropZone.getAttribute('data-status')
+    if (newStatus && newStatus !== props.task.status) {
+      // Emit status change
+      emit('updateStatus', props.task.id, newStatus)
+    }
+  }
+  
+  // Clean up
+  removeDragPreview()
+  emit('dragEnd', props.task)
+  
+  // Reset touch data
+  touchData.value.isDragging = false
+}
+
+const createDragPreview = (element, x, y) => {
+  // Create a clone of the element for preview
+  const preview = element.cloneNode(true)
+  preview.style.position = 'fixed'
+  preview.style.left = `${x - 150}px`
+  preview.style.top = `${y - 50}px`
+  preview.style.width = '300px'
+  preview.style.pointerEvents = 'none'
+  preview.style.zIndex = '9999'
+  preview.style.opacity = '0.8'
+  preview.style.transform = 'rotate(5deg)'
+  preview.classList.add('touch-drag-preview')
+  
+  document.body.appendChild(preview)
+  touchData.value.dragPreview = preview
+}
+
+const removeDragPreview = () => {
+  if (touchData.value.dragPreview) {
+    document.body.removeChild(touchData.value.dragPreview)
+    touchData.value.dragPreview = null
+  }
+}
+
 const handleDragStart = (event) => {
   // Define os dados que serão transferidos durante o drag
   event.dataTransfer.setData('application/json', JSON.stringify(props.task))
@@ -222,5 +337,18 @@ const handleDragEnd = (event) => {
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  transition: all 0.2s ease;
+}
+
+:global(.touch-drag-preview) {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  background: white;
+  transform: rotate(5deg) scale(0.95);
 }
 </style>
