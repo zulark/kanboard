@@ -122,6 +122,31 @@
                                     placeholder="Confirme sua senha" 
                                 />
                             </div>
+
+                            <!-- Checkbox de aceite dos termos (apenas no registro) -->
+                            <div v-if="!isLogin && !showPasswordRecovery" class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input 
+                                        id="acceptTerms" 
+                                        v-model="form.acceptTerms" 
+                                        type="checkbox" 
+                                        required
+                                        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
+                                    />
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="acceptTerms" class="text-gray-700 dark:text-gray-300">
+                                        Eu aceito os 
+                                        <button 
+                                            type="button"
+                                            @click="showTermsModal = true"
+                                            class="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 underline font-medium"
+                                        >
+                                            termos de privacidade
+                                        </button>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Mensagens de erro -->
@@ -223,6 +248,59 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Termos de Privacidade -->
+        <div v-if="showTermsModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <!-- Fundo do modal -->
+                <div 
+                    class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+                    aria-hidden="true"
+                    @click="showTermsModal = false"
+                ></div>
+
+                <!-- Conteúdo do modal -->
+                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
+                                    Termos de Privacidade
+                                </h3>
+                                <div class="mt-4 max-h-96 overflow-y-auto">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300 space-y-4">
+                                        <p>
+                                            Este sistema de Kanban pessoal tem como objetivo oferecer uma ferramenta simples para organização de tarefas. Ao utilizá-lo, algumas informações pessoais podem ser coletadas durante o processo de registro e autenticação.
+                                        </p>
+                                        
+                                        <p>
+                                            As informações coletadas incluem nome completo e endereço de e-mail, que poderão ser visualizados pelo desenvolvedor apenas para fins de identificação e gerenciamento da conta. As senhas são armazenadas de forma criptografada pelo serviço Supabase, garantindo que não sejam visíveis ou acessíveis pelo desenvolvedor em nenhum momento.
+                                        </p>
+                                        
+                                        <p>
+                                            As informações fornecidas não serão compartilhadas com terceiros, vendidas ou utilizadas para fins que não estejam diretamente relacionados ao funcionamento do sistema. O uso dos dados tem como único propósito possibilitar a autenticação, acesso seguro e funcionamento adequado da aplicação.
+                                        </p>
+                                        
+                                        <p>
+                                            Ao utilizar o sistema, você concorda com a coleta e uso das informações nos termos descritos acima.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button 
+                            type="button" 
+                            @click="showTermsModal = false"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+                        >
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -240,12 +318,14 @@ const { errorMessage, successMessage, setError, setSuccess, clearMessages, clear
 
 const isLogin = ref(true)
 const showPasswordRecovery = ref(false)
+const showTermsModal = ref(false)
 
 const form = ref({
     email: '',
     password: '',
     confirmPassword: '',
-    fullName: ''
+    fullName: '',
+    acceptTerms: false
 })
 
 const toggleMode = () => {
@@ -256,7 +336,8 @@ const toggleMode = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        fullName: ''
+        fullName: '',
+        acceptTerms: false
     }
 }
 
@@ -294,6 +375,10 @@ const validateForm = () => {
         }
         if (!form.value.fullName.trim()) {
             setError('Nome completo é obrigatório')
+            return false
+        }
+        if (!form.value.acceptTerms) {
+            setError('Você deve aceitar os termos de privacidade para continuar')
             return false
         }
     }
