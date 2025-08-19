@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen bg-indigo-200 dark:bg-gray-900">
-        <div class="min-h-screen flex">
+        <div class="min-h-screen flex flex-col lg:flex-row">
             <!-- Hero Section - Left Side -->
             <div class="hidden lg:flex lg:w-1/2 xl:w-2/3 bg-[#ffffff] dark:bg-gray-800 relative overflow-hidden">
                 <!-- Background Pattern -->
@@ -8,26 +8,26 @@
                 <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.1&quot;%3E%3Ccircle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;4&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
                 
                 <!-- Hero Content -->
-                <div class="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
+                <div class="relative z-10 flex flex-col justify-center items-center w-full p-8 xl:p-12 text-white">
                     <div class="max-w-lg text-center">
                         <!-- Hero Image -->
-                        <div class="mb-8">
+                        <div class="mb-6 xl:mb-8">
                             <img 
                                 :src="showPasswordRecovery ? '/heroimage2.png' : (!isLogin ? '/heroimage3.png' : '/heroimage.png')"
-                                class="w-full h-full object-contain mx-auto"
+                                class="w-full h-full object-contain mx-auto max-h-64"
                             />
                         </div>
                         
                         <!-- Hero Text -->
-                        <h1 class="text-black dark:text-white text-4xl font-bold mb-4">
+                        <h1 class="text-black dark:text-white text-3xl xl:text-4xl font-bold mb-4">
                             {{ showPasswordRecovery ? 'Recupere sua conta' : (isLogin ? 'Bem-vindo de volta!' : 'Junte-se a nós!') }}
                         </h1>
-                        <p class="text-xl text-slate-700 dark:text-slate-300 mb-8 leading-relaxed">
+                        <p class="text-lg xl:text-xl text-slate-700 dark:text-slate-300 mb-8 leading-relaxed">
                             {{ showPasswordRecovery 
                                 ? 'Digite seu email e enviaremos um link para redefinir sua senha.' 
                                 : (isLogin 
-                                    ? 'Acesse sua conta e continue gerenciando seus projetos Scrum de forma eficiente.' 
-                                    : 'Crie sua conta e comece a organizar suas tarefas como um verdadeiro desenvolvedor ágil.') 
+                                    ? 'Acesse sua conta e continue gerenciando seus projetos pessoais de forma eficiente.' 
+                                    : 'Crie sua conta e comece a organizar suas tarefas de maneira ágil.') 
                             }}
                         </p>
                     </div>
@@ -35,19 +35,19 @@
             </div>
 
             <!-- Form Section - Right Side -->
-            <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
+            <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-24 py-8 lg:py-0">
                 <div class="mx-auto w-full max-w-sm lg:w-96">
                     <!-- Mobile Hero Image -->
-                    <div class="lg:hidden text-center mb-8">
+                    <div class="lg:hidden text-center mb-6 sm:mb-8">
                         <img 
-                            src="/heroimage2.png" 
-                            class="w-full h-64 object-contain mx-auto"
+                            :src="showPasswordRecovery ? '/heroimage2.png' : (!isLogin ? '/heroimage3.png' : '/heroimage.png')"
+                            class="w-full h-48 sm:h-64 object-contain mx-auto"
                         />
                     </div>
                     
                     <!-- Form Header -->
-                    <div class="text-center mb-8">
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    <div class="text-center mb-6 sm:mb-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                             {{ showPasswordRecovery ? 'Recuperar Senha' : (isLogin ? 'Entre na sua conta' : 'Crie sua conta') }}
                         </h2>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -250,7 +250,7 @@
         </div>
 
         <!-- Modal de Termos de Privacidade -->
-        <div v-if="showTermsModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div v-if="showTermsModal" class="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-0" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <!-- Fundo do modal -->
                 <div 
@@ -260,7 +260,7 @@
                 ></div>
 
                 <!-- Conteúdo do modal -->
-                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full mx-4">
                     <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
                             <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
@@ -279,6 +279,14 @@
                                         
                                         <p>
                                             As informações fornecidas não serão compartilhadas com terceiros, vendidas ou utilizadas para fins que não estejam diretamente relacionados ao funcionamento do sistema. O uso dos dados tem como único propósito possibilitar a autenticação, acesso seguro e funcionamento adequado da aplicação.
+                                        </p>
+                                        
+                                        <p>
+                                            O usuário pode solicitar a exclusão de sua conta e de seus dados pessoais a qualquer momento. Após a exclusão, todas as informações serão removidas de forma definitiva do banco de dados.
+                                        </p>
+                                        
+                                        <p>
+                                            <strong>Conformidade com a LGPD:</strong> Este sistema está em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018). Você tem o direito de acessar, corrigir, atualizar ou solicitar a exclusão de seus dados pessoais, bem como revogar o consentimento a qualquer momento. Para exercer esses direitos, entre em contato através do sistema.
                                         </p>
                                         
                                         <p>

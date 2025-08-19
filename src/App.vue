@@ -13,11 +13,12 @@
                 <div class="mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
                         <div class="flex items-center space-x-2">
-                            <img class="h-10 w-10" src="/logo.png" alt="Logo" />
-                            <span class="font-montserrat text-xl font-semibold">Konboard</span>
+                            <img class="h-8 w-8 sm:h-10 sm:w-10" src="/logo.png" alt="Logo" />
+                            <span class="font-montserrat text-lg sm:text-xl font-semibold">Konboard</span>
                         </div>
 
-                        <div class="flex items-center gap-3">
+                        <!-- Desktop Menu -->
+                        <div class="hidden md:flex items-center gap-3">
                             <span class="text-sm text-gray-600 dark:text-gray-300">
                                 Olá, {{ userName }}
                             </span>
@@ -45,6 +46,46 @@
                                 Sair
                             </button>
                         </div>
+
+                        <!-- Mobile Menu Button -->
+                        <div class="md:hidden flex items-center gap-2">
+                            <button @click="showTaskForm = true" class="btn-primary p-2">
+                                <PlusIcon class="h-5 w-5" />
+                            </button>
+                            <button @click="showMobileMenu = !showMobileMenu" class="btn-secondary p-2">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu -->
+                    <div v-if="showMobileMenu" class="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4">
+                        <div class="space-y-4">
+                            <div class="px-4 text-sm text-gray-600 dark:text-gray-300">
+                                Olá, {{ userName }}
+                            </div>
+                            <button @click="showStatusManager = true; showMobileMenu = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4">
+                                    </path>
+                                </svg>
+                                Gerenciar Status ({{ sortedStatuses.length }})
+                            </button>
+                            <button @click="toggleTheme; showMobileMenu = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
+                                <SunIcon v-if="theme === 'light'" class="h-5 w-5" />
+                                <MoonIcon v-else class="h-5 w-5" />
+                                {{ theme === 'light' ? 'Modo Escuro' : 'Modo Claro' }}
+                            </button>
+                            <button @click="handleSignOut" class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Sair
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -56,25 +97,19 @@
             </div>
 
             <!-- Main Content -->
-            <div v-else class=" max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
                 <!-- Stats Section com scroll horizontal -->
-                <div class="overflow-x-auto pb-2 mb-8">
-                    <div class="grid grid-cols-5 gap-4 min-w-max">
-                        <div class="card text-center min-w-[160px] dark:bg-gray-800 dark:border-gray-700">
-                            <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ taskStats.total }}</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Total de Tarefas</div>
+                <div class="overflow-x-auto pb-2 mb-6 sm:mb-8">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 min-w-max">
+                        <div class="card text-center min-w-[140px] sm:min-w-[160px] dark:bg-gray-800 dark:border-gray-700">
+                            <div class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ taskStats.total }}</div>
+                            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Total de Tarefas</div>
                         </div>
-                        <div class="card text-center min-w-[160px] dark:bg-gray-800 dark:border-gray-700">
-                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ taskStats.totalHours
-                                }}h</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Horas Totais de Tickets</div>
+                        <div class="card text-center min-w-[140px] sm:min-w-[160px] dark:bg-gray-800 dark:border-gray-700">
+                            <div class="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{{ taskStats.totalHours }}h</div>
+                            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Horas Totais de Tickets</div>
                         </div>
-                        <!-- <div v-for="status in sortedStatuses.slice(0, 3)" :key="`stat-${status.id}`" class="card text-center min-w-[160px]">
-                            <div class="text-2xl font-bold" :style="{ color: status.color }">
-                                {{ tasksByStatus[status.name]?.length || 0 }}
-                            </div>
-                            <div class="text-sm text-gray-600">{{ status.name }}</div>
-                        </div> -->
+                        <!-- Seção para estatísticas de status pode ser adicionada aqui -->
                     </div>
                 </div>
 
@@ -115,16 +150,16 @@
 
                 <!-- Kanban Board -->
                 <div class="relative">
-                    <!-- Indicadores de scroll -->
-                    <div v-if="sortedStatuses.length > 4"
-                        class="absolute right-0 top-0 z-10 bg-gradient-to-l from-gray-50 dark:from-gray-900 to-transparent w-8 h-full pointer-events-none">
+                    <!-- Indicadores de scroll para desktop -->
+                    <div v-if="sortedStatuses.length > 2 && sortedStatuses.length > 4"
+                        class="hidden sm:block absolute right-0 top-0 z-10 bg-gradient-to-l from-gray-50 dark:from-gray-900 to-transparent w-8 h-full pointer-events-none">
                     </div>
-                    <div v-if="sortedStatuses.length > 4"
-                        class="absolute left-0 top-0 z-10 bg-gradient-to-r from-gray-50 dark:from-gray-900 to-transparent w-8 h-full pointer-events-none">
+                    <div v-if="sortedStatuses.length > 2 && sortedStatuses.length > 4"
+                        class="hidden sm:block absolute left-0 top-0 z-10 bg-gradient-to-r from-gray-50 dark:from-gray-900 to-transparent w-8 h-full pointer-events-none">
                     </div>
 
-                    <!-- Botões de navegação -->
-                    <div v-if="sortedStatuses.length > 4" class="absolute top-4 right-12 z-20 flex gap-2">
+                    <!-- Botões de navegação para desktop -->
+                    <div v-if="sortedStatuses.length > 4" class="hidden sm:flex absolute top-4 right-12 z-20 gap-2">
                         <button @click="scrollKanban('left')"
                             class="bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 shadow-md rounded-full p-2 transition-all">
                             <svg class="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
@@ -146,10 +181,9 @@
                     <div ref="kanbanContainer" class="overflow-x-auto pb-4 scroll-smooth" @scroll="updateScrollPosition"
                         @scrollend="handleScrollEnd"
                         :class="{ 'scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800': sortedStatuses.length > 4 }">
-                        <div class="flex gap-6 min-w-max"
-                            :style="{ minWidth: `${Math.max(sortedStatuses.length * 320, 1280)}px` }">
+                        <div class="flex gap-3 sm:gap-6 min-w-max">
                             <div v-for="status in sortedStatuses" :key="status.id"
-                                class="min-h-[400px] w-80 flex-shrink-0">
+                                class="min-h-[400px] w-[280px] sm:w-80 flex-shrink-0">
                                 <!-- Header da coluna com cores dinâmicas -->
                                 <div class="p-4 rounded-t-lg border-2 border-b-0" :style="{
                                     backgroundColor: status.bgColor,
@@ -269,6 +303,7 @@ const {
 // Estado local
 const showTaskForm = ref(false)
 const showStatusManager = ref(false)
+const showMobileMenu = ref(false)
 const currentTask = ref(null)
 const kanbanContainer = ref(null)
 const scrollPosition = ref(0)

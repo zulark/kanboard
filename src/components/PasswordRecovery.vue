@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen bg-indigo-200 dark:bg-gray-900">
-        <div class="min-h-screen flex">
+        <div class="min-h-screen flex flex-col lg:flex-row">
             <!-- Hero Section - Left Side -->
             <div class="hidden lg:flex lg:w-1/2 xl:w-2/3 bg-[#ffffff] dark:bg-gray-800 relative overflow-hidden">
                 <!-- Background Pattern -->
@@ -28,7 +28,7 @@
                         </p>
                         
                         <!-- Features List -->
-                        <div class="text-left space-y-3">
+                        <!-- <div class="text-left space-y-3">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -47,26 +47,26 @@
                                 </svg>
                                 <span class="text-slate-700">Acesso rápido em minutos</span>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
 
             <!-- Form Section - Right Side -->
-            <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
+            <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-24 py-8 lg:py-0">
                 <div class="mx-auto w-full max-w-sm lg:w-96">
                     <!-- Mobile Hero Image -->
-                    <div class="lg:hidden text-center mb-8">
+                    <div class="lg:hidden text-center mb-6 sm:mb-8">
                         <img 
                             src="/heroimage2.png" 
                             alt="Recuperação de senha" 
-                            class="w-40 h-32 object-contain mx-auto"
+                            class="w-40 h-32 sm:w-48 sm:h-40 object-contain mx-auto"
                         />
                     </div>
                     
                     <!-- Form Header -->
-                    <div class="text-center mb-8">
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    <div class="text-center mb-6 sm:mb-8">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                             Nova Senha
                         </h2>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
