@@ -13,7 +13,7 @@
                         <!-- Hero Image -->
                         <div class="mb-8">
                             <img 
-                                src="/src/assets/heroimage2.png" 
+                                src="/heroimage2.png" 
                                 alt="Recuperação de senha" 
                                 class="w-full h-full object-contain mx-auto"
                             />
@@ -61,7 +61,7 @@
                     <!-- Mobile Hero Image -->
                     <div class="lg:hidden text-center mb-8">
                         <img 
-                            src="/src/assets/heroimage2.png" 
+                            src="/heroimage2.png" 
                             alt="Recuperação de senha" 
                             class="w-40 h-32 object-contain mx-auto"
                         />

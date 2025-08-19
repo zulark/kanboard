@@ -13,7 +13,7 @@
                         <!-- Hero Image -->
                         <div class="mb-8">
                             <img 
-                                :src="showPasswordRecovery ? '/src/assets/heroimage2.png' : '/src/assets/heroimage.png'"
+                                :src="showPasswordRecovery ? '/heroimage2.png' : (!isLogin ? '/heroimage3.png' : '/heroimage.png')"
                                 class="w-full h-full object-contain mx-auto"
                             />
                         </div>
@@ -40,7 +40,7 @@
                     <!-- Mobile Hero Image -->
                     <div class="lg:hidden text-center mb-8">
                         <img 
-                            src="/src/assets/heroimage2.png" 
+                            src="/heroimage2.png" 
                             class="w-full h-64 object-contain mx-auto"
                         />
                     </div>
